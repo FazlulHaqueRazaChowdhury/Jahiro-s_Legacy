@@ -1,3 +1,21 @@
+# Compiled files
 *.exe
-*.dsym
-main
+*.out
+*.o
+*.obj
+
+# Build folders
+build/
+bin/
+cmake-build-*/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
