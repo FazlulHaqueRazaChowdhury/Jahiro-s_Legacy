@@ -9,6 +9,11 @@ public:
     virtual void tick(float deltaTime) override;
     void setTarget(Character* character) { target = character; }
     virtual Vector2 getScreenPos() override;
+    
+    // added by shadman for respawn 
+    //void setTarget(Character* character) { target = character; }
+    void respawn(Vector2 pos);
+
 private:
     Character* target;
     float damagePerSec{10.f};

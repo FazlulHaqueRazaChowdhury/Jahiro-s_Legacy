@@ -1,9 +1,20 @@
 #include "raylib.h"
 #include "raymath.h"
+#include <vector>
+
 #include "Character.h"
 #include "Prop.h"
 #include "Enemy.h"
 #include <string>
+
+// ray lib built in function. help to get any random value in this range. 
+// added by shadman
+static Vector2 GetRandomSpawnPos()
+{
+    float x = (float)GetRandomValue(100, 2000);
+    float y = (float)GetRandomValue(100, 2000);
+    return { x, y };
+}
 
 int main()
 {
@@ -17,11 +28,26 @@ int main()
 
     Character knight{windowWidth, windowHeight};
 
-    Prop props[2]{
-        Prop{Vector2{600.f, 300.f}, LoadTexture("nature_tileset/Rock.png")},
-        Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}};
+// added  by shadman
+ int killCount = 0;
+const int WIN_KILLS = 10; // we can change this number to increase the game difficulty
+bool gameWon = false;
 
-    Enemy goblin{
+
+//  textures to draw enemy 
+
+Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
+Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
+
+Texture2D slimeIdle = LoadTexture("characters/slime_idle_spritesheet.png");
+Texture2D slimeRun  = LoadTexture("characters/slime_run_spritesheet.png");
+
+
+ Prop props[2]{
+ Prop{Vector2{600.f, 300.f}, LoadTexture("nature_tileset/Rock.png")},
+ Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}};
+
+    /*Enemy goblin{
         Vector2{800.f, 300.f},
         LoadTexture("characters/goblin_idle_spritesheet.png"),
         LoadTexture("characters/goblin_run_spritesheet.png")};
@@ -38,13 +64,53 @@ int main()
     for (auto enemy : enemies)
     {
         enemy->setTarget(&knight);
-    }
+    }*/
+
+// enemy textures (load once)
+   // Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
+   // Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
+
+
+
+  // enemy container
+std::vector<Enemy> enemies;
+
+const int MAX_ENEMIES = 3;
+
+for (int i = 0; i < MAX_ENEMIES; i++)
+{
+   bool isGoblin = (i % 2 == 0);
+
+    Enemy e(
+        GetRandomSpawnPos(),
+        isGoblin ? goblinIdle : slimeIdle,
+        isGoblin ? goblinRun  : slimeRun
+    );
+
+    e.setTarget(&knight);
+    enemies.push_back(e);
+}
+
+
+
+
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
         BeginDrawing();
         ClearBackground(WHITE);
+
+        // game winning script , will be utilized when game will be finished
+      /*   if (gameWon)
+{
+   ClearBackground(RAYWHITE);
+    DrawText("YOU WIN!", 200, 300, 50, GREEN);
+    DrawText(TextFormat("Enemies defeated: %i", killCount), 200, 360, 20, DARKGREEN);
+    EndDrawing();
+    continue; //stop game logic
+}*/ 
+
 
         mapPos = Vector2Scale(knight.getWorldPos(), -1.f);
 
@@ -88,26 +154,45 @@ int main()
             }
         }
 
-        for (auto enemy : enemies)
-        {
-            enemy->tick(GetFrameTime());
-        }
+       for (auto& enemy : enemies)
+{
+    enemy.tick(GetFrameTime());
+}
+
        //bullet vs enemy . added by shadman 
-for (auto enemy : enemies)
+for (auto& enemy : enemies)
 {
     for (auto& bullet : knight.getBullets())
     {
-        if (enemy->getAlive() &&
+        if (enemy.getAlive() &&
             CheckCollisionRecs(
                 bullet.getCollisionRec(knight.getWorldPos()),
-                enemy->getCollisionRec()))
+                enemy.getCollisionRec()))
         {
-            enemy->setAlive(false);
+            enemy.setAlive(false);
             bullet.alive = false;
+             killCount++; 
         }
     }
 }
+// to count the killed enemy 
+if (killCount >= WIN_KILLS)
+{
+    gameWon = true;
+}
 
+
+// for enemy respawn 
+for (auto& enemy : enemies)
+{
+    if (!enemy.getAlive())
+    {
+        enemy.respawn(Vector2{
+            (float)GetRandomValue(200, 2000),
+            (float)GetRandomValue(200, 2000)
+        });
+    }
+}
 
 
         EndDrawing();

@@ -19,7 +19,7 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
 {
     if (!alive) return;
 
-    // movement (UNCHANGED)
+    // movement
     worldPos = Vector2Add(worldPos, Vector2Scale(direction, speed * dt));
 
     // animation timing
@@ -31,7 +31,6 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
         if (frame >= MAX_FRAMES) frame = 0;
     }
 
-    // world → screen
     Vector2 screenPos = Vector2Add(
         Vector2Subtract(worldPos, knightWorldPos),
         Vector2{
@@ -40,7 +39,7 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
         }
     );
 
-    // source from the bullet sprite sheet
+    // source (from BIG sprite sheet)
     Rectangle source{
         (float)(frame * FRAME_WIDTH),
         (float)(BULLET_ROW * FRAME_HEIGHT),
@@ -48,7 +47,7 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
         (float)FRAME_HEIGHT
     };
 
-    // destination to draw on the screen
+    // destination , to draw on screen 
     Rectangle dest{
         screenPos.x - FRAME_WIDTH,
         screenPos.y - FRAME_HEIGHT,

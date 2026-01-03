@@ -30,3 +30,9 @@ Vector2 Enemy::getScreenPos()
 {
     return Vector2Subtract(worldPos, target->getWorldPos());
 }
+
+void Enemy::respawn(Vector2 pos)
+{
+    worldPos = pos;
+    setAlive(true);
+}
