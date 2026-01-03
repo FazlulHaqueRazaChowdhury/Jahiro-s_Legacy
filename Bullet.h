@@ -16,6 +16,12 @@ private:
     Vector2 worldPos{};
     Vector2 direction{};
     float speed{700.f};
+// for bullet texture
+  Texture2D texture{};
+  int frame{0};
+  float runningTime{0.f};
+ float frameTime{0.08f};
+
 };
 
 #endif

@@ -11,7 +11,7 @@ int main()
     const int windowHeight{700};
     InitWindow(windowWidth, windowHeight, "Stephen's Top Down");
 
-    Texture2D map = LoadTexture("nature_tileset/OpenWorldMap24x24.png");
+    Texture2D map = LoadTexture("nature_tileset/map2.png");
     Vector2 mapPos{0.0, 0.0};
     const float mapScale{4.0f};
 
@@ -92,17 +92,6 @@ int main()
         {
             enemy->tick(GetFrameTime());
         }
-// this past is removed by shadman
-      /*  if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-        {
-            for (auto enemy : enemies)
-            {
-                if (CheckCollisionRecs(enemy->getCollisionRec(), knight.getWeaponCollisionRec()))
-                {
-                    enemy->setAlive(false);
-                }
-            }
-        }*/
        //bullet vs enemy . added by shadman 
 for (auto enemy : enemies)
 {

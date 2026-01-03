@@ -21,16 +21,7 @@ void Character::tick(float deltaTime)
 {
     if (!getAlive()) return;
 
-    /*if (IsKeyDown(KEY_A))
-        velocity.x -= 1.0;
-    if (IsKeyDown(KEY_D))
-        velocity.x += 1.0;
-    if (IsKeyDown(KEY_W))
-        velocity.y -= 1.0;
-    if (IsKeyDown(KEY_S))
-        velocity.y += 1.0;*/
-        Vector2 moveDir{};
-
+Vector2 moveDir{};
 if (IsKeyDown(KEY_A)) moveDir.x -= 1.f;
 if (IsKeyDown(KEY_D)) moveDir.x += 1.f;
 if (IsKeyDown(KEY_W)) moveDir.y -= 1.f;
@@ -40,7 +31,7 @@ if (Vector2Length(moveDir) > 0.f)
 {
     moveDir = Vector2Normalize(moveDir);
     velocity = moveDir;
-    facingDir = moveDir;   // THIS LINE MAKES BULLETS FOLLOW FACING
+    facingDir = moveDir;   // bullet follow facing 
 }
 
     BaseCharacter::tick(deltaTime);
@@ -79,7 +70,7 @@ if (Vector2Length(moveDir) > 0.f)
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
 
     //SHOOTING 
-if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) ) || IsKeyDown(KEY_B))
 {
     // Player center in WORLD space
     Vector2 playerWorldCenter = {
@@ -93,9 +84,7 @@ if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     GetMousePosition(),
     getWorldPos()
 );
-
-
-   // Vector2 dir = Vector2Subtract(mouseWorld, playerWorldCenter);
+    // Vector2 dir = Vector2Subtract(mouseWorld, playerWorldCenter);
     //bullets.emplace_back(playerWorldCenter, dir);
     bullets.emplace_back(playerWorldCenter, facingDir);
 
