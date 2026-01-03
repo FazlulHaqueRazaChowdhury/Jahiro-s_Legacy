@@ -40,7 +40,7 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
         }
     );
 
-    // source (from BIG sprite sheet)
+    // source from the bullet sprite sheet
     Rectangle source{
         (float)(frame * FRAME_WIDTH),
         (float)(BULLET_ROW * FRAME_HEIGHT),
@@ -48,7 +48,7 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
         (float)FRAME_HEIGHT
     };
 
-    // destination (draw on screen)
+    // destination to draw on the screen
     Rectangle dest{
         screenPos.x - FRAME_WIDTH,
         screenPos.y - FRAME_HEIGHT,
