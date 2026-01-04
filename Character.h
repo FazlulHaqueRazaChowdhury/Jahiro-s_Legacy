@@ -21,7 +21,7 @@ public:
 private:
     int windowWidth{};
     int windowHeight{};
-    Texture2D weapon{LoadTexture("")};
+    Texture2D weapon{LoadTexture("characters/vietnam_war2.png")};
     Rectangle weaponCollisionRec{};
     float health{100.f};
     std::vector<Bullet> bullets;

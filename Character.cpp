@@ -1,6 +1,11 @@
 #include "Character.h"
 #include "raymath.h"
 
+constexpr int TILE_SIZE = 16;
+constexpr int GUN_COL = 6;   // change if needed
+constexpr int GUN_ROW = 4;   // change if needed
+
+
 Character::Character(int winWidth, int winHeight) :
     windowWidth(winWidth),
     windowHeight(winHeight)
@@ -36,7 +41,7 @@ if (Vector2Length(moveDir) > 0.f)
 
     BaseCharacter::tick(deltaTime);
 
-    Vector2 origin{};
+   /* Vector2 origin{};
     Vector2 offset{};
     float rotation{};
     if (rightLeft > 0.f)
@@ -62,12 +67,68 @@ if (Vector2Length(moveDir) > 0.f)
             weapon.height * scale
         };
         rotation = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? -35.f : 0.f;
-    }
+    }*/
+
+// player center in SCREEN space
+Vector2 playerScreenCenter = Vector2Add(
+    getScreenPos(),
+    { (width * scale) / 2.f, (height * scale) / 2.f }
+);
+
+// mouse position in SCREEN space
+Vector2 mouseScreen = GetMousePosition();
+
+// direction from player → mouse (SCREEN SPACE)
+Vector2 shootDir = Vector2Subtract(mouseScreen, playerScreenCenter);
+
+// gun rotation (degrees)
+float rotation = atan2f(shootDir.y, shootDir.x) * RAD2DEG;
+
+// gun texture source
+Rectangle source{
+    (float)(GUN_COL * TILE_SIZE),
+    (float)(GUN_ROW * TILE_SIZE),
+    (float)TILE_SIZE,
+    (float)TILE_SIZE
+};
+
+Vector2 gunOffset = {
+    4.f * scale,    // move gun forward (right)
+   2.f * scale     // move gun UP (negative y)
+};
+
+float gunScale = scale * 0.8f;  // gun size
+
+// gun destination 
+Rectangle dest{
+    playerScreenCenter.x + gunOffset.x,
+    playerScreenCenter.y + gunOffset.y,
+    TILE_SIZE * gunScale,
+    TILE_SIZE * gunScale
+};
+
+Vector2 origin{
+    3.f * scale,    // closer to grip
+    (TILE_SIZE * scale) / 2.f
+};
+
+
+// draw the gun
+DrawTexturePro(
+    weapon,
+    source,
+    dest,
+    origin,
+    rotation,
+    WHITE
+);
+
+
 
     // draw the sword
-    Rectangle source{0.f, 0.f, static_cast<float>(weapon.width) * rightLeft, static_cast<float>(weapon.height)};
-    Rectangle dest{getScreenPos().x + offset.x, getScreenPos().y + offset.y, weapon.width * scale, weapon.height * scale};
-    DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
+ //   Rectangle source{0.f, 0.f, static_cast<float>(weapon.width) * rightLeft, static_cast<float>(weapon.height)};
+   // Rectangle dest{getScreenPos().x + offset.x, getScreenPos().y + offset.y, weapon.width * scale, weapon.height * scale};
+    //DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
 
     //SHOOTING 
 if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) ) || IsKeyDown(KEY_B))
@@ -78,15 +139,12 @@ if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) ) || IsKeyDown(KEY_B))
         worldPos.y + (height * scale) / 2.f
     };
 
-    // Mouse position in WORLD space
-   // Vector2 mouseWorld = Vector2Add(GetMousePosition(), worldPos);
-   Vector2 mouseWorld = Vector2Add(
-    GetMousePosition(),
-    getWorldPos()
-);
+
     // Vector2 dir = Vector2Subtract(mouseWorld, playerWorldCenter);
     //bullets.emplace_back(playerWorldCenter, dir);
-    bullets.emplace_back(playerWorldCenter, facingDir);
+
+   bullets.emplace_back(playerWorldCenter, shootDir);
+
 
 }
 for (int i = 0; i < bullets.size(); i++)
