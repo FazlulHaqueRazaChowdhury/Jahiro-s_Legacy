@@ -87,7 +87,7 @@ for (int i = 0; i < MAX_ENEMIES; i++)
           if (IsKeyPressed(KEY_C))
              currentMap = &map2;
  
-        // HideCursor();
+        HideCursor();
         DrawTexturePro(
             cursor,
             Rectangle{0.f, 0.f, (float)cursor.width, (float)cursor.height},
