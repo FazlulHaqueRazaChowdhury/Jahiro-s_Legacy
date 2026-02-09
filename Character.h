@@ -14,6 +14,7 @@ public:
     Rectangle getWeaponCollisionRec() { return weaponCollisionRec; }
     Texture2D weapon{LoadTexture("characters/gun.png")};
     Texture2D head{LoadTexture("characters/head.png")};
+    Texture2D shadow{LoadTexture("characters/shadow.png")};
     float getHealth() const { return health; }
     void takeDamage(float damage);
     std::vector<Bullet>& getBullets() { return bullets; }

@@ -44,15 +44,18 @@ void Character::tick(float deltaTime)
         isAttacking = true;
     else
         isAttacking = false;
-
-    BaseCharacter::tick(deltaTime);
-
-    // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
-    // PLAYER CENTER (SCREEN)
+       // PLAYER CENTER (SCREEN)
     Vector2 playerScreenCenter = Vector2Add(
         getScreenPos(),
         {(width * scale) / 2.f, (height * scale) / 2.f}
     );
+        //Shadows
+
+    DrawTextureEx(shadow,Vector2{playerScreenCenter.x-(float)shadow.width,playerScreenCenter.y-(float)shadow.height},0.f,2.f, WHITE);
+    BaseCharacter::tick(deltaTime);
+
+    // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
+  
 
     // AIM DIRECTION 
     Vector2 mouseScreen = GetMousePosition();
@@ -158,7 +161,8 @@ void Character::tick(float deltaTime)
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
     // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
 
-    
+   
+
     //Muzzle postion 
     // Hand position in screen space
     Vector2 handScreenPos = Vector2Add(playerScreenCenter, gunOffset);
