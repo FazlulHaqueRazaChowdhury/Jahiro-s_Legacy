@@ -56,8 +56,8 @@ void Character::tick(float deltaTime)
 
     // AIM DIRECTION 
     Vector2 mouseScreen = GetMousePosition();
-    Vector2 shootDir = Vector2Subtract(mouseScreen, playerScreenCenter);
-    shootDir.y -= 25.f; // adjust for gun position
+    Vector2 shootDir = Vector2Subtract(mouseScreen,getScreenPos());
+    
     float rotation = atan2f(shootDir.y, shootDir.x) * RAD2DEG;
     
     // Normalized gun direction for bullet spawning
@@ -186,7 +186,7 @@ void Character::tick(float deltaTime)
     // Shoot
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B))
     {
-        bullets.emplace_back(muzzleScreenPos, gunDir);
+        bullets.emplace_back(muzzleScreenPos, Vector2Subtract(mouseScreen, muzzleScreenPos));
         if (shootSound) PlaySound(*shootSound); 
     }
 
