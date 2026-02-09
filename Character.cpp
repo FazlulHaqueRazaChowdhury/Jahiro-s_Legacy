@@ -158,7 +158,7 @@ void Character::tick(float deltaTime)
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
     // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
 
-     DrawCircleV(mouseScreen, 5.f, GREEN); // debug mouse position
+    
     //Muzzle postion 
     // Hand position in screen space
     Vector2 handScreenPos = Vector2Add(playerScreenCenter, gunOffset);

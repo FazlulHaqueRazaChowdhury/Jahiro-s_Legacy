@@ -91,7 +91,7 @@ for (int i = 0; i < MAX_ENEMIES; i++)
         DrawTexturePro(
             cursor,
             Rectangle{0.f, 0.f, (float)cursor.width, (float)cursor.height},
-            Rectangle{(float)GetMouseX(), (float)GetMouseY()-40.f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
+            Rectangle{(float)GetMouseX()-(float)cursor.width * 0.05f* 0.5f, (float)GetMouseY()-(float)cursor.height * 0.05f* 0.5f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
             Vector2{0.f, 0.f},
             0.f,
             WHITE);
