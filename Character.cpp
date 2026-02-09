@@ -164,21 +164,20 @@ void Character::tick(float deltaTime)
     Vector2 handScreenPos = Vector2Add(playerScreenCenter, gunOffset);
     
     // Distance from hand to muzzle tip
-    float handToMuzzle = weapon.width * gunScale * 0.7f;
+    float handToMuzzle = weapon.width * gunScale*.8f; // adjust as needed
     
     // Muzzle position in screen space
+    handScreenPos.y -= 5.f; // adjust for better alignment
     Vector2 muzzleScreenPos = Vector2Add(
         handScreenPos,
         Vector2Scale(gunDir, handToMuzzle)
     );
+        // muzzleScreenPos.y -= (15.f); // adjust for better alignment
         // muzzleScreenPos.x += 5.f * flip; // adjust for better alignment
         //  muzzle position to world space for bullet spawning
-        DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
-        Vector2 muzzleWorldPos = Vector2Add(
-            Vector2Subtract(muzzleScreenPos, getScreenPos()),
-            worldPos
-        );
-    std::string muzzleText = "Muzzle World Pos: " + std::to_string((int)muzzleWorldPos.x) + ", " + std::to_string((int)muzzleWorldPos.y);   
+
+    // DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
+    std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)muzzleScreenPos.x) + ", " + std::to_string((int)muzzleScreenPos.y);   
     DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
     // DEBUG 
     std::string debugText = "Rotation: " + std::to_string(headRotate);
