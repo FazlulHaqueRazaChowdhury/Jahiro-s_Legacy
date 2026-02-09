@@ -1,17 +1,20 @@
 #include "Character.h"
 #include "raymath.h"
+#include <string>
 
-constexpr int TILE_SIZE = 16;
-constexpr int GUN_COL = 6;   // change if needed
-constexpr int GUN_ROW = 4;   // change if needed
-
-
-Character::Character(int winWidth, int winHeight) :
-    windowWidth(winWidth),
-    windowHeight(winHeight)
+Character::Character(int winWidth, int winHeight) 
+    : windowWidth(winWidth), windowHeight(winHeight)
 {
     width = texture.width / maxFrames;
     height = texture.height;
+    
+    worldPos = {
+        static_cast<float>(windowWidth) / 2.f + 300.f,
+        static_cast<float>(windowHeight) / 2.f + 300.f
+    };
+    
+    ssPos = getScreenPos();
+    mouseMovement = true;
 }
 
 Vector2 Character::getScreenPos()
@@ -20,151 +23,195 @@ Vector2 Character::getScreenPos()
         static_cast<float>(windowWidth) / 2.0f - scale * (0.5f * width),
         static_cast<float>(windowHeight) / 2.0f - scale * (0.5f * height)
     };
-} 
+}
 
 void Character::tick(float deltaTime)
 {
-    if (!getAlive()) return;
+    if (!getAlive())
+        return;
 
-Vector2 moveDir{};
-if (IsKeyDown(KEY_A)) moveDir.x -= 1.f;
-if (IsKeyDown(KEY_D)) moveDir.x += 1.f;
-if (IsKeyDown(KEY_W)) moveDir.y -= 1.f;
-if (IsKeyDown(KEY_S)) moveDir.y += 1.f;
+    // MOVEMENT 
+    if (IsKeyDown(KEY_A)) velocity.x -= 1.0;
+    if (IsKeyDown(KEY_D)) velocity.x += 1.0;
+    if (IsKeyDown(KEY_W)) velocity.y -= 1.0;
+    if (IsKeyDown(KEY_S)) velocity.y += 1.0;
 
-if (Vector2Length(moveDir) > 0.f)
-{
-    moveDir = Vector2Normalize(moveDir);
-    velocity = moveDir;
-    facingDir = moveDir;   // bullet follow facing 
-}
+    std::string debugText2 = "Velocity Coord: " + std::to_string((int)GetMousePosition().x) +
+                             ", " + std::to_string((int)GetMousePosition().y);
+    DrawText(debugText2.c_str(), 55, 80, 20, GREEN);
+
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        isAttacking = true;
+    else
+        isAttacking = false;
 
     BaseCharacter::tick(deltaTime);
 
-   /* Vector2 origin{};
-    Vector2 offset{};
-    float rotation{};
-    if (rightLeft > 0.f)
+    // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
+    // PLAYER CENTER (SCREEN)
+    Vector2 playerScreenCenter = Vector2Add(
+        getScreenPos(),
+        {(width * scale) / 2.f, (height * scale) / 2.f}
+    );
+
+    // AIM DIRECTION 
+    Vector2 mouseScreen = GetMousePosition();
+    Vector2 shootDir = Vector2Subtract(mouseScreen, playerScreenCenter);
+    
+    float rotation = atan2f(shootDir.y, shootDir.x) * RAD2DEG;
+    
+    // Normalized gun direction for bullet spawning
+    Vector2 gunDir = {
+        cosf(rotation * DEG2RAD),
+        sinf(rotation * DEG2RAD)
+    };
+    
+    std::string rotationText = std::to_string(rotation);
+    DrawText(rotationText.c_str(), 10.f, 80.f, 20, RED);
+
+    //Flip
+    float flip{1.f};
+    if (rotation > 90.f || rotation < -90.f)
     {
-        origin = {0.f, weapon.height * scale};
-        offset = {35.f, 55.f};
-        weaponCollisionRec = {
-            getScreenPos().x + offset.x,
-            getScreenPos().y + offset.y - weapon.height * scale,
-            weapon.width * scale,
-            weapon.height * scale
-        };
-        rotation = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? 35.f : 0.f;
+        flip = -1.f;
+        rightLeft = -1.f;
     }
     else
     {
-        origin = {weapon.width * scale, weapon.height * scale};
-        offset = {25.f, 55.f};
-        weaponCollisionRec = {
-            getScreenPos().x + offset.x - weapon.width * scale,
-            getScreenPos().y + offset.y - weapon.height * scale,
-            weapon.width * scale,
-            weapon.height * scale
-        };
-        rotation = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? -35.f : 0.f;
-    }*/
+        flip = 1.f;
+        rightLeft = 1.f;
+    }
 
-// player center in SCREEN space
-Vector2 playerScreenCenter = Vector2Add(
-    getScreenPos(),
-    { (width * scale) / 2.f, (height * scale) / 2.f }
-);
-
-// mouse position in SCREEN space
-Vector2 mouseScreen = GetMousePosition();
-
-// direction from player → mouse (SCREEN SPACE)
-Vector2 shootDir = Vector2Subtract(mouseScreen, playerScreenCenter);
-
-// gun rotation (degrees)
-float rotation = atan2f(shootDir.y, shootDir.x) * RAD2DEG;
-
-// gun texture source
-Rectangle source{
-    (float)(GUN_COL * TILE_SIZE),
-    (float)(GUN_ROW * TILE_SIZE),
-    (float)TILE_SIZE,
-    (float)TILE_SIZE
-};
-
-Vector2 gunOffset = {
-    4.f * scale,    // move gun forward (right)
-   2.f * scale     // move gun UP (negative y)
-};
-
-float gunScale = scale * 0.8f;  // gun size
-
-// gun destination 
-Rectangle dest{
-    playerScreenCenter.x + gunOffset.x,
-    playerScreenCenter.y + gunOffset.y,
-    TILE_SIZE * gunScale,
-    TILE_SIZE * gunScale
-};
-
-Vector2 origin{
-    3.f * scale,    // closer to grip
-    (TILE_SIZE * scale) / 2.f
-};
-
-
-// draw the gun
-DrawTexturePro(
-    weapon,
-    source,
-    dest,
-    origin,
-    rotation,
-    WHITE
-);
-
-
-
-    // draw the sword
- //   Rectangle source{0.f, 0.f, static_cast<float>(weapon.width) * rightLeft, static_cast<float>(weapon.height)};
-   // Rectangle dest{getScreenPos().x + offset.x, getScreenPos().y + offset.y, weapon.width * scale, weapon.height * scale};
-    //DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
-
-    //SHOOTING 
-if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) ) || IsKeyDown(KEY_B))
-{
-    // Player center in WORLD space
-    Vector2 playerWorldCenter = {
-        worldPos.x + (width * scale) / 2.f,
-        worldPos.y + (height * scale) / 2.f
+    // draw the head
+    float headScale = 0.04f;
+    
+    Rectangle source2{
+        (float)(1.f * head.width),
+        (float)(1.f * head.height),
+        (float)head.width, // flip when facing left
+        (float)head.height * flip
     };
 
+    Vector2 headOffset = {
+        2.f * flip, // move gun forward (right)
+        -25.f       // move gun UP (negative y)
+    };
 
-    // Vector2 dir = Vector2Subtract(mouseWorld, playerWorldCenter);
-    //bullets.emplace_back(playerWorldCenter, dir);
+    Rectangle dest2{
+        playerScreenCenter.x + headOffset.x,
+        playerScreenCenter.y + headOffset.y,
+        weapon.width * headScale,
+        weapon.height * headScale
+    };
+    
+    float headRotate = rotation;
 
-   bullets.emplace_back(playerWorldCenter, shootDir);
-
-
-}
-for (int i = 0; i < bullets.size(); i++)
-{
-    bullets[i].tick(deltaTime, worldPos);
-    if (!bullets[i].alive)
+    if (rotation > 30.f && rotation < 150.f)
     {
-        bullets.erase(bullets.begin() + i);
-        i--;
+        headRotate = 30.f;
+        if (rotation >= 90.f)
+            headRotate = 150.f;
     }
-}
+    else if (rotation < -30.f && rotation > -150.f)
+    {
+        headRotate = -30.f;
+        if (rotation <= -90.f)
+            headRotate = -150.f;
+    }
 
+    Vector2 origin2{
+        (head.width * headScale) / 2.f, // closer to grip
+        (head.height * headScale) / 2.f
+    };
+    
+    DrawTexturePro(head, source2, dest2, origin2, headRotate, WHITE);
 
+    // GUN 
+    float gunScale = 0.08f;
+    
+    Rectangle source{
+        (float)(1.f * weapon.width),
+        (float)(1.f * weapon.height),
+        (float)weapon.width, // flip when facing left
+        (float)weapon.height * flip
+    };
+
+    Vector2 gunOffset = {
+        -10.f * rightLeft, // move gun forward (right)
+        -15.f              // move gun UP (negative y)
+    };
+
+    Rectangle dest{
+        playerScreenCenter.x + gunOffset.x,
+        playerScreenCenter.y + gunOffset.y,
+        weapon.width * gunScale,
+        weapon.height * gunScale
+    };
+
+    Vector2 origin{
+        0.f, // closer to grip
+        (weapon.height * gunScale) / 2.f
+    };
+
+    DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
+
+    //Muzzle postion 
+    // Hand position in screen space
+    Vector2 handScreenPos = Vector2Add(playerScreenCenter, gunOffset);
+    
+    // Distance from hand to muzzle tip
+    float handToMuzzle = weapon.width * gunScale * 0.7f;
+    
+    // Muzzle position in screen space
+    Vector2 muzzleScreenPos = Vector2Add(
+        handScreenPos,
+        Vector2Scale(gunDir, handToMuzzle)
+    );
+    
+    //  muzzle position to world space for bullet spawning
+    Vector2 muzzleWorldPos = Vector2Add(
+        worldPos,
+        Vector2Subtract(muzzleScreenPos, getScreenPos())
+    );
+
+    // DEBUG 
+    std::string debugText = "Rotation: " + std::to_string(headRotate);
+    DrawText(debugText.c_str(), 155, 280, 20, GREEN);
+
+    // Shoot
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B))
+    {
+        bullets.emplace_back(muzzleWorldPos, gunDir);
+        if (shootSound) PlaySound(*shootSound); 
+    }
+
+    // Bullets
+    for (int i = 0; i < bullets.size(); i++)
+    {
+        bullets[i].tick(deltaTime, worldPos, rightLeft, muzzleScreenPos);
+        
+        if (!bullets[i].alive)
+        {
+            bullets.erase(bullets.begin() + i);
+            i--;
+        }
+    }
+
+    mainCharRL = rightLeft;
 }
 
 void Character::takeDamage(float damage)
 {
-    health -= damage;
     if (health <= 0.f)
-    {
         setAlive(false);
-    }
+}
+
+Rectangle Character::getCharCollisionRec()
+{
+    return Rectangle{
+        getScreenPos().x,
+        getScreenPos().y,
+        width * scale,
+        height * scale
+    };
 }

@@ -7,6 +7,8 @@ Enemy::Enemy(Vector2 pos, Texture2D idle_texture, Texture2D run_texture)
     texture = idle_texture;
     idle = idle_texture;
     run = run_texture;
+    maxFrames = 6.f;
+    scale = 2.f;
     width = texture.width / maxFrames;
     height = texture.height;
     speed = 3.5f;

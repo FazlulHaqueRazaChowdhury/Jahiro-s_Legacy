@@ -1,11 +1,9 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
-
+#include <vector>
+#include "Bullet.h"
 #include "raylib.h"
 #include "BaseCharacter.h"
-// added by shadman
-#include "Bullet.h"
-#include <vector>
 
 class Character : public BaseCharacter
 {
@@ -14,20 +12,22 @@ public:
     virtual void tick(float deltaTime) override;
     virtual Vector2 getScreenPos() override;
     Rectangle getWeaponCollisionRec() { return weaponCollisionRec; }
+    Texture2D weapon{LoadTexture("characters/gun.png")};
+    Texture2D head{LoadTexture("characters/head.png")};
     float getHealth() const { return health; }
     void takeDamage(float damage);
     std::vector<Bullet>& getBullets() { return bullets; }
-
+    Rectangle getCharCollisionRec();
+    float mainCharRL{1.f};
+    void setShootSound(Sound* sound) { shootSound = sound; }
 private:
     int windowWidth{};
     int windowHeight{};
-    Texture2D weapon{LoadTexture("characters/vietnam_war2.png")};
     Rectangle weaponCollisionRec{};
+    Vector2 ssPos{};
     float health{100.f};
-    std::vector<Bullet> bullets;
-      // added by shadman
-    Vector2 facingDir{1.f, 0.f}; // default: facing right
-
+     std::vector<Bullet> bullets;
+     Sound* shootSound{nullptr};
 };
 
 #endif

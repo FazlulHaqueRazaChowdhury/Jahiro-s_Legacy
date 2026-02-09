@@ -14,23 +14,28 @@ public:
     bool getAlive() { return alive; }
     void setAlive(bool isAlive) { alive = isAlive; }
 protected:
-    Texture2D texture{LoadTexture("characters/knight_idle_spritesheet.png")};
-    Texture2D idle{LoadTexture("characters/knight_idle_spritesheet.png")};
-    Texture2D run{LoadTexture("characters/knight_run_spritesheet.png")};
+    Texture2D texture{LoadTexture("characters/idle.png")};
+    Texture2D idle{LoadTexture("characters/idle.png")};
+    Texture2D run{LoadTexture("characters/walk.png")};
+    Texture2D attack{LoadTexture("characters/idle.png")};
+    Texture2D runattack{LoadTexture("characters/idle.png")};
     Vector2 worldPos{};
     Vector2 worldPosLastFrame{};
     // 1 : facing right, -1 : facing left
     float rightLeft{1.f};
     // animation variables
     float runningTime{};
-    int frame{};
-    int maxFrames{6};
-    float updateTime{1.f / 12.f};
+    float frame{};
+    float maxFrames{2.f};
+    float updateTime{1.f / 15.f};
     float speed{4.f};
-    float width{};
-    float height{};
-    float scale{4.0f};
+    float  maxIdleFrame{1.f};
+    float width{(float)texture.width/maxFrames};
+    float height{(float)texture.height};
+    float scale{.08f};
     Vector2 velocity{};
+    bool isAttacking{false};
+    bool mouseMovement{false};
 private:
     bool alive{true};
 };

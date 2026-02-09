@@ -5,7 +5,7 @@
 constexpr int FRAME_WIDTH  = 16;
 constexpr int FRAME_HEIGHT = 16;
 constexpr int MAX_FRAMES   = 4;
-constexpr int BULLET_ROW   =13; //  change this number to try other bullets
+constexpr int BULLET_ROW   =2; //  change this number to try other bullets
 
 Bullet::Bullet(Vector2 pos, Vector2 dir)
 {
@@ -15,10 +15,11 @@ Bullet::Bullet(Vector2 pos, Vector2 dir)
     texture = LoadTexture("characters/All_Fire_Bullet_Pixel_16x16 (1).png");
 }
 
-void Bullet::tick(float dt, Vector2 knightWorldPos)
+void Bullet::tick(float dt, Vector2 knightWorldPos, float mainCharRL, Vector2 origin)
 {
     if (!alive) return;
 
+    gunPos= origin;
     // movement
     worldPos = Vector2Add(worldPos, Vector2Scale(direction, speed * dt));
 
@@ -33,10 +34,7 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
 
     Vector2 screenPos = Vector2Add(
         Vector2Subtract(worldPos, knightWorldPos),
-        Vector2{
-            GetScreenWidth() / 2.f,
-            GetScreenHeight() / 2.f
-        }
+        gunPos
     );
 
     // source (from BIG sprite sheet)
@@ -49,29 +47,30 @@ void Bullet::tick(float dt, Vector2 knightWorldPos)
 
     // destination , to draw on screen 
     Rectangle dest{
-        screenPos.x - FRAME_WIDTH,
-        screenPos.y - FRAME_HEIGHT,
-        FRAME_WIDTH * 2.f,
-        FRAME_HEIGHT * 2.f
+        screenPos.x,
+        screenPos.y,
+        FRAME_WIDTH *.5f,
+        FRAME_HEIGHT *.5f
     };
-
-    DrawTexturePro(texture, source, dest, {0, 0}, 0.f, WHITE);
+    if(screenPos.x < -FRAME_WIDTH || screenPos.x > GetScreenWidth()+FRAME_WIDTH ||
+       screenPos.y < -FRAME_HEIGHT || screenPos.y > GetScreenHeight()+FRAME_HEIGHT){
+        UnloadTexture(texture);
+        alive = false;
+    }
+    DrawTexturePro(texture, source, dest, {}, 0.f, WHITE);
 }
 
 Rectangle Bullet::getCollisionRec(Vector2 knightWorldPos) const
 {
     Vector2 screenPos = Vector2Add(
         Vector2Subtract(worldPos, knightWorldPos),
-        Vector2{
-            GetScreenWidth() / 2.f,
-            GetScreenHeight() / 2.f
-        }
+        Vector2{GetScreenWidth()/2.f, GetScreenHeight()/2.f}
     );
 
     return Rectangle{
-        screenPos.x - 8,
-        screenPos.y - 8,
-        16,
-        16
+        screenPos.x - FRAME_WIDTH,
+        screenPos.y - FRAME_HEIGHT,
+          FRAME_WIDTH *.5f,
+        FRAME_HEIGHT *.5f
     };
 }

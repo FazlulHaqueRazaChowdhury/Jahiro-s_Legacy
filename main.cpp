@@ -1,81 +1,63 @@
 #include "raylib.h"
 #include "raymath.h"
-#include <vector>
-
 #include "Character.h"
 #include "Prop.h"
 #include "Enemy.h"
+#include "Map.h"
 #include <string>
-
-// ray lib built in function. help to get any random value in this range. 
-// added by shadman
+#include <vector>
 static Vector2 GetRandomSpawnPos()
 {
     float x = (float)GetRandomValue(100, 2000);
     float y = (float)GetRandomValue(100, 2000);
     return { x, y };
 }
-
 int main()
 {
-    const int windowWidth{700};
-    const int windowHeight{700};
-    InitWindow(windowWidth, windowHeight, "Stephen's Top Down");
+    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    const int windowWidth{1280};
+    const int windowHeight{720};
+    InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
 
-    Texture2D map = LoadTexture("nature_tileset/map2.png");
-    Vector2 mapPos{0.0, 0.0};
-    const float mapScale{4.0f};
+    InitAudioDevice();
+    Texture2D cursor = LoadTexture("characters/cursor.png");
 
-    Character knight{windowWidth, windowHeight};
+    Texture2D map1Tex = LoadTexture("nature_tileset/map3.png");
+    Texture2D map2Tex = LoadTexture("nature_tileset/map2.png");
+   
+    Sound gunShot=LoadSound("sounds/freesound_community-080998_bullet-hit-39870 (3).mp3");
 
-// added  by shadman
- int killCount = 0;
-const int WIN_KILLS = 10; // we can change this number to increase the game difficulty
-bool gameWon = false;
+Map map1(map1Tex, 3.f);
+Map map2(map2Tex, 3.f);
+
+// MAP 1 PROPS
+map1.addProp(Prop({750.f,500.f}, LoadTexture("nature_tileset/tree.png"),30,0,4.f));
+map1.addProp(Prop({800.f,600.f}, LoadTexture("nature_tileset/tree2.png"),16,0,1.5f));
+map1.addProp(Prop({2200.f,850.f}, LoadTexture("nature_tileset/tree3.png"),25,0,1.2f));
+map1.addProp(Prop({2300.f,800.f}, LoadTexture("nature_tileset/tree.png"),30,0,3.9f));
+// MAP 2 PROPS
+map2.addProp(Prop({800.f,600.f}, LoadTexture("nature_tileset/tree2.png"),16,0,1.5f));
+map2.addProp(Prop({2200.f,850.f}, LoadTexture("nature_tileset/tree3.png"),25,0,1.2f));
+map2.addProp(Prop({230.f+446.f,200.f+256.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
+map2.addProp(Prop({1160.f,730.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
+map2.addProp(Prop({2020.f,720.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
+map2.addProp(Prop({2340.f,370.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
+Map* currentMap = &map1;
 
 
-//  textures to draw enemy 
-
+ Character knight{windowWidth, windowHeight};
+   
 Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
 Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
 
 Texture2D slimeIdle = LoadTexture("characters/slime_idle_spritesheet.png");
 Texture2D slimeRun  = LoadTexture("characters/slime_run_spritesheet.png");
 
+knight.setShootSound(&gunShot);
 
- Prop props[2]{
- Prop{Vector2{600.f, 300.f}, LoadTexture("nature_tileset/Rock.png")},
- Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}};
+    std::vector<Enemy> enemies;
 
-    /*Enemy goblin{
-        Vector2{800.f, 300.f},
-        LoadTexture("characters/goblin_idle_spritesheet.png"),
-        LoadTexture("characters/goblin_run_spritesheet.png")};
-
-    Enemy slime{
-        Vector2{500.f, 700.f},
-        LoadTexture("characters/slime_idle_spritesheet.png"),
-        LoadTexture("characters/slime_run_spritesheet.png")};
-
-    Enemy *enemies[]{
-        &goblin,
-        &slime};
-
-    for (auto enemy : enemies)
-    {
-        enemy->setTarget(&knight);
-    }*/
-
-// enemy textures (load once)
-   // Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
-   // Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
-
-
-
-  // enemy container
-std::vector<Enemy> enemies;
-
-const int MAX_ENEMIES = 3;
+const int MAX_ENEMIES = 1;
 
 for (int i = 0; i < MAX_ENEMIES; i++)
 {
@@ -90,38 +72,29 @@ for (int i = 0; i < MAX_ENEMIES; i++)
     e.setTarget(&knight);
     enemies.push_back(e);
 }
-
-
-
-
-
     SetTargetFPS(60);
     while (!WindowShouldClose())
-    {
+    { 
         BeginDrawing();
         ClearBackground(WHITE);
 
-        // game winning script , will be utilized when game will be finished
-      /*   if (gameWon)
-{
-   ClearBackground(RAYWHITE);
-    DrawText("YOU WIN!", 200, 300, 50, GREEN);
-    DrawText(TextFormat("Enemies defeated: %i", killCount), 200, 360, 20, DARKGREEN);
-    EndDrawing();
-    continue; //stop game logic
-}*/ 
+        currentMap->render(knight, GetFrameTime());
+        currentMap->handleCollision(knight);
 
+          if (IsKeyPressed(KEY_E))
+           currentMap = &map1;
 
-        mapPos = Vector2Scale(knight.getWorldPos(), -1.f);
-
-        // draw the map
-        DrawTextureEx(map, mapPos, 0.0, mapScale, WHITE);
-
-        // draw the props
-        for (auto prop : props)
-        {
-            prop.Render(knight.getWorldPos());
-        }
+          if (IsKeyPressed(KEY_C))
+             currentMap = &map2;
+ 
+        HideCursor();
+        DrawTexturePro(
+            cursor,
+            Rectangle{0.f, 0.f, (float)cursor.width, (float)cursor.height},
+            Rectangle{(float)GetMouseX(), (float)GetMouseY()-40.f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
+            Vector2{0.f, 0.f},
+            0.f,
+            WHITE);
 
         if (!knight.getAlive()) // Character is not alive
         {
@@ -129,7 +102,7 @@ for (int i = 0; i < MAX_ENEMIES; i++)
             EndDrawing();
             continue;
         }
-        else // Character is alive
+        else // Character is alive 
         {
             std::string knightsHealth = "Health: ";
             knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
@@ -138,28 +111,21 @@ for (int i = 0; i < MAX_ENEMIES; i++)
 
         knight.tick(GetFrameTime());
         // check map bounds
-        if (knight.getWorldPos().x < 0.f ||
-            knight.getWorldPos().y < 0.f ||
-            knight.getWorldPos().x + windowWidth > map.width * mapScale ||
-            knight.getWorldPos().y + windowHeight > map.height * mapScale)
+        if (
+            knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
+            (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f
+            ||  knight.getWorldPos().x >1443.f ||    (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f) 
+        )
         {
-            knight.undoMovement();
-        }
-        // check prop collisions
-        for (auto prop : props)
-        {
-            if (CheckCollisionRecs(prop.getCollisionRec(knight.getWorldPos()), knight.getCollisionRec()))
-            {
-                knight.undoMovement();
-            }
+           knight.undoMovement();
         }
 
-       for (auto& enemy : enemies)
-{
-    enemy.tick(GetFrameTime());
-}
 
-       //bullet vs enemy . added by shadman 
+     for (auto& enemy : enemies)
+        {
+            enemy.tick(GetFrameTime());
+        }
+
 for (auto& enemy : enemies)
 {
     for (auto& bullet : knight.getBullets())
@@ -170,32 +136,23 @@ for (auto& enemy : enemies)
                 enemy.getCollisionRec()))
         {
             enemy.setAlive(false);
-            bullet.alive = false;
-             killCount++; 
+            bullet.alive = false; 
         }
     }
 }
-// to count the killed enemy 
-if (killCount >= WIN_KILLS)
-{
-    gameWon = true;
-}
-
-
-// for enemy respawn 
-for (auto& enemy : enemies)
+    for (auto& enemy : enemies)
 {
     if (!enemy.getAlive())
     {
         enemy.respawn(Vector2{
-            (float)GetRandomValue(200, 2000),
+            (float)GetRandomValue(100, 2000),
             (float)GetRandomValue(200, 2000)
         });
     }
 }
-
-
         EndDrawing();
     }
+UnloadSound(gunShot);
+CloseAudioDevice();
     CloseWindow();
 }
