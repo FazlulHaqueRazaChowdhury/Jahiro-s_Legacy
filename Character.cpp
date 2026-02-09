@@ -57,7 +57,7 @@ void Character::tick(float deltaTime)
     // AIM DIRECTION 
     Vector2 mouseScreen = GetMousePosition();
     Vector2 shootDir = Vector2Subtract(mouseScreen, playerScreenCenter);
-    
+    shootDir.y -= 25.f; // adjust for gun position
     float rotation = atan2f(shootDir.y, shootDir.x) * RAD2DEG;
     
     // Normalized gun direction for bullet spawning

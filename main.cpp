@@ -45,7 +45,7 @@ map2.addProp(Prop({2340.f,370.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.
 Map* currentMap = &map1;
 
 
- Character knight{windowWidth, windowHeight};
+Character knight{windowWidth, windowHeight};
    
 Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
 Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
