@@ -147,14 +147,18 @@ void Character::tick(float deltaTime)
         weapon.width * gunScale,
         weapon.height * gunScale
     };
-
+    //Drawing the text for dest
+    std::string destText = "Gun Dest: " + std::to_string((int)dest.x) + ", " + std::to_string((int)dest.y);
+    DrawText(destText.c_str(), 10.f, 110.f, 20, RED);
+    //Converting gun screen position to world position for bullet spawning
     Vector2 origin{
         0.f, // closer to grip
         (weapon.height * gunScale) / 2.f
     };
-
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
+    // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
 
+     DrawCircleV(mouseScreen, 5.f, GREEN); // debug mouse position
     //Muzzle postion 
     // Hand position in screen space
     Vector2 handScreenPos = Vector2Add(playerScreenCenter, gunOffset);
@@ -167,13 +171,15 @@ void Character::tick(float deltaTime)
         handScreenPos,
         Vector2Scale(gunDir, handToMuzzle)
     );
-    
-    //  muzzle position to world space for bullet spawning
-    Vector2 muzzleWorldPos = Vector2Add(
-        worldPos,
-        Vector2Subtract(muzzleScreenPos, getScreenPos())
-    );
-
+        // muzzleScreenPos.x += 5.f * flip; // adjust for better alignment
+        //  muzzle position to world space for bullet spawning
+        DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
+        Vector2 muzzleWorldPos = Vector2Add(
+            Vector2Subtract(muzzleScreenPos, getScreenPos()),
+            worldPos
+        );
+    std::string muzzleText = "Muzzle World Pos: " + std::to_string((int)muzzleWorldPos.x) + ", " + std::to_string((int)muzzleWorldPos.y);   
+    DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
     // DEBUG 
     std::string debugText = "Rotation: " + std::to_string(headRotate);
     DrawText(debugText.c_str(), 155, 280, 20, GREEN);
@@ -181,7 +187,7 @@ void Character::tick(float deltaTime)
     // Shoot
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B))
     {
-        bullets.emplace_back(muzzleWorldPos, gunDir);
+        bullets.emplace_back(muzzleScreenPos, gunDir);
         if (shootSound) PlaySound(*shootSound); 
     }
 
