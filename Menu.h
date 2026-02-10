@@ -22,7 +22,8 @@ private:
     
     // Textures
     Texture2D menuBackground;
-    
+    Font customFont;
+
     // Main Menu Buttons
     Rectangle playButton;
     Rectangle mapSelectButton;
@@ -48,7 +49,6 @@ private:
     
     // Helper functions
     bool isButtonHovered(Rectangle button);
-    void drawButton(Rectangle button, const char* text, Color normalColor, Color hoverColor);
     void drawButtonWithSize(Rectangle button, const char* text, Color normalColor, Color hoverColor, int fontSize);
     
     // Render different screens

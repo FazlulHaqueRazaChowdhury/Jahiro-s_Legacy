@@ -6,9 +6,10 @@ Menu::Menu(int winWidth, int winHeight)
     : windowWidth(winWidth), windowHeight(winHeight), 
       selectedMap(1), musicVolume(0.5f), sfxVolume(0.5f)
 {
+    
     // Load menu background
     menuBackground = LoadTexture("nature_tileset/landing-2_bg.png");
-    
+    customFont = LoadFont("fonts/XTypewriter-Bold.ttf");
     // main menu buttons
     playButton = {
         windowWidth / 2.f - 150,
@@ -27,14 +28,14 @@ Menu::Menu(int winWidth, int winHeight)
     settingsButton = {
         windowWidth / 2.f - 600,
         windowHeight - 100,
-        300,
+        250,
         70
     };
     
     quitButton = {
         windowWidth -250,
         windowHeight - 100,
-        200,
+        170,
         70
     };
     
@@ -100,6 +101,7 @@ Menu::Menu(int winWidth, int winHeight)
 Menu::~Menu()
 {
     UnloadTexture(menuBackground);
+     UnloadFont(customFont);
 }
 
 bool Menu::isButtonHovered(Rectangle button)
@@ -108,53 +110,62 @@ bool Menu::isButtonHovered(Rectangle button)
     return CheckCollisionPointRec(mousePos, button);
 }
 
-void Menu::drawButton(Rectangle button, const char* text, Color normalColor, Color hoverColor)
-{
-    Color currentColor = isButtonHovered(button) ? hoverColor : normalColor;
-    DrawRectangleRec(button, currentColor);
-    DrawRectangleLinesEx(button, 3, BLACK);
-    
-    int textWidth = MeasureText(text, 40);
-    DrawText(text,
-             button.x + (button.width - textWidth) / 2,
-             button.y + (button.height - 40) / 2,
-             40,
-             WHITE);
-}
-
 void Menu::drawButtonWithSize(Rectangle button, const char* text, Color normalColor, Color hoverColor, int fontSize)
 {
     Color currentColor = isButtonHovered(button) ? hoverColor : normalColor;
+
+    //to made the button transparent , 0 lest,250 max
+     currentColor.a = 120;
+
     DrawRectangleRec(button, currentColor);
     DrawRectangleLinesEx(button, 3, BLACK);
     
-    int textWidth = MeasureText(text, fontSize);
-    DrawText(text,
-             button.x + (button.width - textWidth) / 2,
-             button.y + (button.height - fontSize) / 2,
-             fontSize,
-             WHITE);
+    // Use custom font
+    Vector2 textSize = MeasureTextEx(customFont, text, fontSize, 2);
+    DrawTextEx(
+        customFont,
+        text,
+        Vector2{
+            button.x + (button.width - textSize.x) / 2,
+            button.y + (button.height - fontSize) / 2
+        },
+        fontSize,
+        2,
+        WHITE
+    );
 }
 
 void Menu::renderMainMenu()
 {
     // Title
     const char* title = "JAHIRO'S LEGACY";
-    int titleWidth = MeasureText(title, 80);
-    DrawText(title, windowWidth / 2 - titleWidth / 2, 100, 80, GOLD);
+     Vector2 titleSize = MeasureTextEx(customFont, title, 80, 3);
+    DrawTextEx(
+        customFont,
+        title,
+        Vector2{windowWidth / 2.f - titleSize.x / 2, 100},
+        80,  // size
+        3,   // spacing
+        GOLD
+    );
     
     // Draw main buttons
-    drawButton(playButton, "PLAY", DARKGREEN, GREEN);
-    drawButton(mapSelectButton, "MAP SELECT", DARKBLUE, BLUE);
-    drawButton(settingsButton, "SETTINGS", DARKPURPLE, PURPLE);
-    drawButton(quitButton, "QUIT", DARKGRAY, RED);
+    drawButtonWithSize(playButton, "PLAY", DARKGREEN, GREEN, 45);
+    drawButtonWithSize(mapSelectButton, "MAP SELECT", DARKBLUE, BLUE, 35);
+    drawButtonWithSize(settingsButton, "SETTINGS", DARKPURPLE, PURPLE, 35);
+    drawButtonWithSize(quitButton, "QUIT", DARKGRAY, RED, 40);
     
     // Instructions
-    DrawText("Use WASD to move, Mouse to aim and shoot",
-             windowWidth / 2 - 250,
-             windowHeight - 80,
-             20,
-             LIGHTGRAY);
+    const char* instructions = "Use WASD to move, Mouse to aim and shoot";
+    Vector2 instSize = MeasureTextEx(customFont, instructions, 20, 1);
+    DrawTextEx(
+        customFont,
+        instructions,
+        Vector2{windowWidth / 2.f - instSize.x / 2, windowHeight - 80},
+        20,
+        1,
+        LIGHTGRAY
+    );
 }
 
 void Menu::renderMapSelection()
@@ -162,40 +173,65 @@ void Menu::renderMapSelection()
     // Title
     const char* title = "SELECT MAP";
     int titleWidth = MeasureText(title, 70);
-    DrawText(title, windowWidth / 2 - titleWidth / 2, 120, 70, GOLD);
+  Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
+    DrawTextEx(
+        customFont,
+        title,
+        Vector2{windowWidth / 2.f - titleSize.x / 2, 120},
+        70,
+        3,
+        GOLD);
     
     // Map buttons with selection highlight
     Color map1Color = (selectedMap == 1) ? BLUE : DARKBLUE;
     Color map1Hover = (selectedMap == 1) ? SKYBLUE : BLUE;
-    drawButton(map1Button, "ORIGINAL", map1Color, map1Hover);
+    drawButtonWithSize(map1Button, "ORIGINAL", map1Color, map1Hover, 38);
     
     Color map2Color = (selectedMap == 2) ? BLUE : DARKBLUE;
     Color map2Hover = (selectedMap == 2) ? SKYBLUE : BLUE;
-    drawButton(map2Button, "APOCALYPTIC", map2Color, map2Hover);
+    drawButtonWithSize(map2Button, "APOCALYPTIC", map2Color, map2Hover, 38);
     
     // Display current selection
     std::string selectionText = "Current: ";
     selectionText += (selectedMap == 1) ? "ORIGINAL" : "APOCALYPTIC";
-    int selWidth = MeasureText(selectionText.c_str(), 30);
-    DrawText(selectionText.c_str(), 
-             windowWidth / 2 - selWidth / 2, 
-             windowHeight / 2 + 60, 
-             30, 
-             YELLOW);
+    Vector2 selSize = MeasureTextEx(customFont, selectionText.c_str(), 30, 2);
+    DrawTextEx(
+        customFont,
+        selectionText.c_str(),
+        Vector2{windowWidth / 2.f - selSize.x / 2, windowHeight / 2.f + 60},
+        30,
+        2,
+        YELLOW
+    );
     
     // Back button
-    drawButton(backFromMapButton, "BACK", DARKGRAY, GRAY);
+  drawButtonWithSize(backFromMapButton, "BACK", DARKGRAY, GRAY, 35);
 }
 
 void Menu::renderSettings()
 {
     // Title
     const char* title = "SETTINGS";
-    int titleWidth = MeasureText(title, 70);
-    DrawText(title, windowWidth / 2 - titleWidth / 2, 120, 70, GOLD);
+     Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
+    DrawTextEx(
+        customFont,
+        title,
+        Vector2{windowWidth / 2.f - titleSize.x / 2, 120},
+        40,
+        3,
+        GOLD
+    );
     
     // Music Volume
-    DrawText("Music", windowWidth / 2 - 280, windowHeight / 2 - 70, 30, WHITE);
+    const char* musicLabel = "Music";
+    DrawTextEx(
+        customFont,
+        musicLabel,
+        Vector2{windowWidth / 2.f - 280, windowHeight / 2.f - 70},
+        30,
+        2,
+        WHITE
+    );
     drawButtonWithSize(musicDownButton, "-", DARKBLUE, BLUE, 40);
     
     // Volume bar for music
@@ -217,12 +253,27 @@ void Menu::renderSettings()
     
     // Display percentage
     std::string musicPercent = std::to_string((int)(musicVolume * 100)) + "%";
-    DrawText(musicPercent.c_str(), windowWidth / 2 - 20, windowHeight / 2 - 60, 30, WHITE);
+    DrawTextEx(
+        customFont,
+        musicPercent.c_str(),
+        Vector2{windowWidth / 2.f - 20, windowHeight / 2.f - 60},
+        30,
+        2,
+        WHITE
+    );
     
     drawButtonWithSize(musicUpButton, "+", DARKBLUE, BLUE, 40);
     
     // SFX Volume
-    DrawText("SFX", windowWidth / 2 - 260, windowHeight / 2 + 40, 30, WHITE);
+    const char* sfxLabel = "SFX";
+    DrawTextEx(
+        customFont,
+        sfxLabel,
+        Vector2{windowWidth / 2.f - 260, windowHeight / 2.f + 40},
+        30,
+        2,
+        WHITE
+    );
     drawButtonWithSize(sfxDownButton, "-", DARKBLUE, BLUE, 40);
     
     // Volume bar for SFX
@@ -244,12 +295,20 @@ void Menu::renderSettings()
     
     // Display percentage
     std::string sfxPercent = std::to_string((int)(sfxVolume * 100)) + "%";
-    DrawText(sfxPercent.c_str(), windowWidth / 2 - 20, windowHeight / 2 + 40, 30, WHITE);
+    DrawTextEx(
+        customFont,
+        sfxPercent.c_str(),
+        Vector2{windowWidth / 2.f - 20, windowHeight / 2.f + 40},
+        30,
+        2,
+        WHITE
+    );
     
     drawButtonWithSize(sfxUpButton, "+", DARKBLUE, BLUE, 40);
     
     // Back button
-    drawButton(backFromSettingsButton, "BACK", DARKGRAY, GRAY);
+   drawButtonWithSize(backFromSettingsButton, "BACK", DARKGRAY, GRAY, 35);
+
 }
 
 void Menu::render(GameState currentState)
