@@ -4,34 +4,16 @@
 #include "Prop.h"
 #include "Enemy.h"
 #include "Map.h"
+#include "Menu.h"
 #include "GameState.h"
 #include <string>
 #include <vector>
-
-// helper function to check if mouse is over a button
-bool IsButtonHovered(Rectangle button){
-    Vector2 mousePos=GetMousePosition();
-    return CheckCollisionPointRec(mousePos,button);
-}
-// drawing button with hover effect
-void DrawButton(Rectangle button,const char* text, Color normalColor, Color hoverColor){
-       Color currentColor=IsButtonHovered(button)? hoverColor:normalColor;
-       DrawRectangleRec(button,currentColor);
-       DrawRectangleLinesEx(button, 3, BLACK);
-
-       int textWidth = MeasureText(text, 40);
-             DrawText(text, 
-             button.x + (button.width - textWidth) / 2, 
-             button.y + (button.height - 40) / 2, 
-             40, 
-             WHITE);
-}
 
 static Vector2 GetRandomSpawnPos()
 {
     float x = (float)GetRandomValue(100, 2000);
     float y = (float)GetRandomValue(100, 2000);
-    return { x, y };
+    return {x, y};
 }
 int main()
 {
@@ -42,263 +24,180 @@ int main()
 
     InitAudioDevice();
 
-    //bg music
-    Music bgMusic=LoadMusicStream("sounds/Burn The World Waltz .mp3");
-    bgMusic.looping=true;
-    SetMusicVolume(bgMusic,0.5f);
+    // bg music
+    Music bgMusic = LoadMusicStream("sounds/Burn The World Waltz .mp3");
+    bgMusic.looping = true;
+    SetMusicVolume(bgMusic, 0.5f);
     PlayMusicStream(bgMusic);
-    Sound gunShot=LoadSound("sounds/freesound_community-080998_bullet-hit-39870 (3).mp3");
-    Sound enemyDeath=LoadSound("sounds/universfield-breeze-of-blood-122253.mp3");
+    Sound gunShot = LoadSound("sounds/freesound_community-080998_bullet-hit-39870 (3).mp3");
+    Sound enemyDeath = LoadSound("sounds/universfield-breeze-of-blood-122253.mp3");
     Texture2D cursor = LoadTexture("characters/cursor.png");
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map3.png");
     Texture2D map2Tex = LoadTexture("nature_tileset/map2.png");
-    Texture2D menuBackground=LoadTexture("nature_tileset/landing-2_bg.png");
+    Texture2D menuBackground = LoadTexture("nature_tileset/landing-2_bg.png");
 
-   
-    
+    Map map1(map1Tex, 3.f);
+    Map map2(map2Tex, 3.f);
 
-Map map1(map1Tex, 3.f);
-Map map2(map2Tex, 3.f);
+    // MAP 1 PROPS
+    map1.addProp(Prop({750.f, 500.f}, LoadTexture("nature_tileset/tree.png"), 30, 0, 4.f));
+    map1.addProp(Prop({800.f, 600.f}, LoadTexture("nature_tileset/tree2.png"), 16, 0, 1.5f));
+    map1.addProp(Prop({2200.f, 850.f}, LoadTexture("nature_tileset/tree3.png"), 25, 0, 1.2f));
+    map1.addProp(Prop({2300.f, 800.f}, LoadTexture("nature_tileset/tree.png"), 30, 0, 3.9f));
+    // MAP 2 PROPS
+    map2.addProp(Prop({800.f, 600.f}, LoadTexture("nature_tileset/tree2.png"), 16, 0, 1.5f));
+    map2.addProp(Prop({2200.f, 850.f}, LoadTexture("nature_tileset/tree3.png"), 25, 0, 1.2f));
+    map2.addProp(Prop({230.f + 446.f, 200.f + 256.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
+    map2.addProp(Prop({1160.f, 730.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
+    map2.addProp(Prop({2020.f, 720.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
+    map2.addProp(Prop({2340.f, 370.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
+    Map *currentMap = &map1;
 
-// MAP 1 PROPS
-map1.addProp(Prop({750.f,500.f}, LoadTexture("nature_tileset/tree.png"),30,0,4.f));
-map1.addProp(Prop({800.f,600.f}, LoadTexture("nature_tileset/tree2.png"),16,0,1.5f));
-map1.addProp(Prop({2200.f,850.f}, LoadTexture("nature_tileset/tree3.png"),25,0,1.2f));
-map1.addProp(Prop({2300.f,800.f}, LoadTexture("nature_tileset/tree.png"),30,0,3.9f));
-// MAP 2 PROPS
-map2.addProp(Prop({800.f,600.f}, LoadTexture("nature_tileset/tree2.png"),16,0,1.5f));
-map2.addProp(Prop({2200.f,850.f}, LoadTexture("nature_tileset/tree3.png"),25,0,1.2f));
-map2.addProp(Prop({230.f+446.f,200.f+256.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
-map2.addProp(Prop({1160.f,730.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
-map2.addProp(Prop({2020.f,720.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
-map2.addProp(Prop({2340.f,370.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.5));
-Map* currentMap = &map1;
+    Character knight{windowWidth, windowHeight};
 
+    Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
+    Texture2D goblinRun = LoadTexture("characters/goblin_run_spritesheet.png");
 
-Character knight{windowWidth, windowHeight};
-   
-Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
-Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
+    Texture2D slimeIdle = LoadTexture("characters/slime_idle_spritesheet.png");
+    Texture2D slimeRun = LoadTexture("characters/slime_run_spritesheet.png");
 
-Texture2D slimeIdle = LoadTexture("characters/slime_idle_spritesheet.png");
-Texture2D slimeRun  = LoadTexture("characters/slime_run_spritesheet.png");
-
-knight.setShootSound(&gunShot);
+    knight.setShootSound(&gunShot);
 
     std::vector<Enemy> enemies;
 
-const int MAX_ENEMIES = 1;
+    const int MAX_ENEMIES = 1;
 
-for (int i = 0; i < MAX_ENEMIES; i++)
-{
-   bool isGoblin = (i % 2 == 0);
+    for (int i = 0; i < MAX_ENEMIES; i++)
+    {
+        bool isGoblin = (i % 2 == 0);
 
-    Enemy e(
-        GetRandomSpawnPos(),
-        isGoblin ? goblinIdle : slimeIdle,
-        isGoblin ? goblinRun  : slimeRun
-    );
+        Enemy e(
+            GetRandomSpawnPos(),
+            isGoblin ? goblinIdle : slimeIdle,
+            isGoblin ? goblinRun : slimeRun);
 
-    e.setTarget(&knight);
-    e.setDeathSound(enemyDeath);
-    enemies.push_back(e);
-}
+        e.setTarget(&knight);
+        e.setDeathSound(enemyDeath);
+        enemies.push_back(e);
+    }
 
-// game state
-GameState currentState=GameState:: MENU;
-
-//Menu buttons
-Rectangle playButton={
-    windowWidth/2.f -150,
-    windowHeight/2.f-100,
-    300,
-    80
-};
-Rectangle quitButton = { 
-        windowWidth/2.f - 150, 
-        windowHeight/2.f + 20, 
-        300, 
-        80 
-    };
-
- // map selection button 
-    Rectangle map1Button = { 
-    windowWidth/2.f - 320, 
-    windowHeight/2.f + 140, 
-    140, 
-    60 
-};
-Rectangle map2Button = { 
-    windowWidth/2.f + 180, 
-    windowHeight/2.f + 140, 
-    140, 
-    60 
-};
-
-int selectedMap = 1; //default is 1;
+    // game state
+    Menu menu(windowWidth, windowHeight);
+    GameState currentState = GameState::MENU;
 
     SetTargetFPS(60);
-    while (!WindowShouldClose())
-    {   
+
+    while (!WindowShouldClose()&& currentState != GameState::QUIT)
+    {
         UpdateMusicStream(bgMusic);
+
+       SetMusicVolume(bgMusic,menu.getMusicVolume());
+     SetSoundVolume(gunShot, menu.getSfxVolume());
+        SetSoundVolume(enemyDeath, menu.getSfxVolume());
+
         BeginDrawing();
         ClearBackground(WHITE);
 
+        if (currentState == GameState::MENU ||
+             currentState == GameState::MAP_SELECTION || 
+             currentState == GameState::SETTINGS
+        )
+        {   //menuscreen
+            menu.render(currentState);
+            GameState newState = menu.handleInput(currentState);
+            
+            if (newState == GameState::PLAYING)
+            {
+                // Set selected map
+                currentMap = (menu.getSelectedMap() == 1) ? &map1 : &map2;
+                currentState = GameState::PLAYING;
+            }
+            else if (newState != currentState)
+            {
+                currentState = newState;
+            }
+        }
+        else if (currentState == GameState::PLAYING)
+        {
 
-        if(currentState==GameState::MENU){
+            currentMap->render(knight, GetFrameTime());
+            currentMap->handleCollision(knight);
 
-            //Mene screen
-            ClearBackground(Color{20,20,40,255});
-             
-          // menu background  
-         DrawTexturePro(
-        menuBackground,
-        Rectangle{0, 0, (float)menuBackground.width, (float)menuBackground.height},
-        Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
-        Vector2{0, 0},
-        0.f,
-        WHITE
-    );
-
-            // title
-            const char* title="JAHIRO'S LEGACY";
-            int titleWidth=MeasureText(title, 80);
-             DrawText(title, windowWidth/2 - titleWidth/2, 150, 80, GOLD);
-
-             // Draw buttons
-             DrawButton(playButton,"PLAY",DARKGREEN,GREEN);
-             DrawButton(quitButton,"QUIT",DARKGRAY,RED);
-
-            //map selection label
-             Color map1Color=(selectedMap==1)?BLUE : DARKBLUE;
-             Color map1HOVER=(selectedMap==1)?SKYBLUE:BLUE;
-             DrawButton(map1Button,"MAP 1",map1Color,map1HOVER);
-
-             Color map2Color = (selectedMap == 2) ? BLUE : DARKBLUE;
-             Color map2Hover = (selectedMap == 2) ? SKYBLUE : BLUE;
-             DrawButton(map2Button, "MAP 2", map2Color, map2Hover);
-               
-             DrawText("Select Map",windowWidth/2.f-100,windowHeight/2.f+120,30,WHITE);
-              
-             //Check button cliks
-             if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-                if(IsButtonHovered(playButton)){
-                    currentState=GameState::PLAYING;
-             // Set the selected map
-               if (selectedMap == 1)
+            if (IsKeyPressed(KEY_E))
                 currentMap = &map1;
-                else
+
+            if (IsKeyPressed(KEY_C))
                 currentMap = &map2;
 
-                    PlayMusicStream(bgMusic);
-                }
-                if (IsButtonHovered(quitButton))
-                {
-                    break;  
-                } 
+                if (IsKeyPressed(KEY_M))
+                currentState = GameState::MENU;
 
-                // Map selection
-              if (IsButtonHovered(map1Button))
+            HideCursor();
+            DrawTexturePro(
+                cursor,
+                Rectangle{0.f, 0.f, (float)cursor.width, (float)cursor.height},
+                Rectangle{(float)GetMouseX() - (float)cursor.width * 0.05f * 0.5f, (float)GetMouseY() - (float)cursor.height * 0.05f * 0.5f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
+                Vector2{0.f, 0.f},
+                0.f,
+                WHITE);
+
+            if (!knight.getAlive()) // Character is not alive
             {
-            selectedMap = 1;
+                DrawText("Game Over!", 55.f, 45.f, 40, RED);
+                EndDrawing();
+                continue;
+            }
+            else // Character is alive
+            {
+                std::string knightsHealth = "Health: ";
+                knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
+                DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, RED);
+            }
+
+            knight.tick(GetFrameTime());
+            // check map bounds
+            if (
+                knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
+                (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f || knight.getWorldPos().x > 1443.f || (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f))
+            {
+                knight.undoMovement();
+            }
+
+            for (auto &enemy : enemies)
+            {
+                enemy.tick(GetFrameTime());
+            }
+
+            for (auto &enemy : enemies)
+            {
+                for (auto &bullet : knight.getBullets())
+                {
+                    if (enemy.getAlive() &&
+                        CheckCollisionRecs(
+                            bullet.getCollisionRec(knight.getWorldPos()),
+                            enemy.getCollisionRec()))
+                    {
+                        enemy.takeDamage();
+                        bullet.alive = false;
+                    }
                 }
-             if (IsButtonHovered(map2Button))
-               {
-            selectedMap = 2;
+            }
+            for (auto &enemy : enemies)
+            {
+                if (!enemy.getAlive())
+                {
+                    enemy.respawn(Vector2{
+                        (float)GetRandomValue(100, 2000),
+                        (float)GetRandomValue(200, 2000)});
                 }
-               
-
-             }
-             // Instructions
-            DrawText("Use WASD to move, Mouse to aim and shoot", 
-                     windowWidth/2 - 250, 
-                     windowHeight - 100, 
-                     20, 
-                     LIGHTGRAY);
-        }
-        else if(currentState==GameState::PLAYING){
-
-        currentMap->render(knight, GetFrameTime());
-        currentMap->handleCollision(knight);
-
-          if (IsKeyPressed(KEY_E))
-           currentMap = &map1;
-
-          if (IsKeyPressed(KEY_C))
-             currentMap = &map2;
- 
-        HideCursor();
-        DrawTexturePro(
-            cursor,
-            Rectangle{0.f, 0.f, (float)cursor.width, (float)cursor.height},
-            Rectangle{(float)GetMouseX()-(float)cursor.width * 0.05f* 0.5f, (float)GetMouseY()-(float)cursor.height * 0.05f* 0.5f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
-            Vector2{0.f, 0.f},
-            0.f,
-            WHITE);
-
-        if (!knight.getAlive()) // Character is not alive
-        {
-            DrawText("Game Over!", 55.f, 45.f, 40, RED);
-            EndDrawing();
-            continue;
-        }
-        else // Character is alive 
-        {
-            std::string knightsHealth = "Health: ";
-            knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
-            DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, RED);
-        }
-
-        knight.tick(GetFrameTime());
-        // check map bounds
-        if (
-            knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
-            (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f
-            ||  knight.getWorldPos().x >1443.f ||    (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f) 
-        )
-        {
-           knight.undoMovement();
-        }
-
-
-     for (auto& enemy : enemies)
-        {
-            enemy.tick(GetFrameTime());
-        }
-
-for (auto& enemy : enemies)
-{
-    for (auto& bullet : knight.getBullets())
-    {
-        if (enemy.getAlive() &&
-            CheckCollisionRecs(
-                bullet.getCollisionRec(knight.getWorldPos()),
-                enemy.getCollisionRec()))
-        {
-            enemy.takeDamage();
-            bullet.alive = false; 
-        }
-    }
-}
-    for (auto& enemy : enemies)
-{
-    if (!enemy.getAlive())
-    {
-        enemy.respawn(Vector2{
-            (float)GetRandomValue(100, 2000),
-            (float)GetRandomValue(200, 2000)
-        });
-    }
-}
+            }
         }
         EndDrawing();
     }
- 
-UnloadTexture(menuBackground);   
-UnloadMusicStream(bgMusic);    
-UnloadSound(gunShot);
-UnloadSound(enemyDeath); 
-CloseAudioDevice();
+    UnloadMusicStream(bgMusic);
+    UnloadSound(gunShot);
+    UnloadSound(enemyDeath);
+    CloseAudioDevice();
     CloseWindow();
 }
