@@ -4,8 +4,29 @@
 #include "Prop.h"
 #include "Enemy.h"
 #include "Map.h"
+#include "GameState.h"
 #include <string>
 #include <vector>
+
+// helper function to check if mouse is over a button
+bool IsButtonHovered(Rectangle button){
+    Vector2 mousePos=GetMousePosition();
+    return CheckCollisionPointRec(mousePos,button);
+}
+// drawing button with hover effect
+void DrawButton(Rectangle button,const char* text, Color normalColor, Color hoverColor){
+       Color currentColor=IsButtonHovered(button)? hoverColor:normalColor;
+       DrawRectangleRec(button,currentColor);
+       DrawRectangleLinesEx(button, 3, BLACK);
+
+       int textWidth = MeasureText(text, 40);
+             DrawText(text, 
+             button.x + (button.width - textWidth) / 2, 
+             button.y + (button.height - 40) / 2, 
+             40, 
+             WHITE);
+}
+
 static Vector2 GetRandomSpawnPos()
 {
     float x = (float)GetRandomValue(100, 2000);
@@ -32,6 +53,8 @@ int main()
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map3.png");
     Texture2D map2Tex = LoadTexture("nature_tileset/map2.png");
+    Texture2D menuBackground=LoadTexture("nature_tileset/landing-2_bg.png");
+
    
     
 
@@ -81,12 +104,120 @@ for (int i = 0; i < MAX_ENEMIES; i++)
     e.setDeathSound(enemyDeath);
     enemies.push_back(e);
 }
+
+// game state
+GameState currentState=GameState:: MENU;
+
+//Menu buttons
+Rectangle playButton={
+    windowWidth/2.f -150,
+    windowHeight/2.f-100,
+    300,
+    80
+};
+Rectangle quitButton = { 
+        windowWidth/2.f - 150, 
+        windowHeight/2.f + 20, 
+        300, 
+        80 
+    };
+
+ // map selection button 
+    Rectangle map1Button = { 
+    windowWidth/2.f - 320, 
+    windowHeight/2.f + 140, 
+    140, 
+    60 
+};
+Rectangle map2Button = { 
+    windowWidth/2.f + 180, 
+    windowHeight/2.f + 140, 
+    140, 
+    60 
+};
+
+int selectedMap = 1; //default is 1;
+
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {   
         UpdateMusicStream(bgMusic);
         BeginDrawing();
         ClearBackground(WHITE);
+
+
+        if(currentState==GameState::MENU){
+
+            //Mene screen
+            ClearBackground(Color{20,20,40,255});
+             
+          // menu background  
+         DrawTexturePro(
+        menuBackground,
+        Rectangle{0, 0, (float)menuBackground.width, (float)menuBackground.height},
+        Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
+        Vector2{0, 0},
+        0.f,
+        WHITE
+    );
+
+            // title
+            const char* title="JAHIRO'S LEGACY";
+            int titleWidth=MeasureText(title, 80);
+             DrawText(title, windowWidth/2 - titleWidth/2, 150, 80, GOLD);
+
+             // Draw buttons
+             DrawButton(playButton,"PLAY",DARKGREEN,GREEN);
+             DrawButton(quitButton,"QUIT",DARKGRAY,RED);
+
+            //map selection label
+             Color map1Color=(selectedMap==1)?BLUE : DARKBLUE;
+             Color map1HOVER=(selectedMap==1)?SKYBLUE:BLUE;
+             DrawButton(map1Button,"MAP 1",map1Color,map1HOVER);
+
+             Color map2Color = (selectedMap == 2) ? BLUE : DARKBLUE;
+             Color map2Hover = (selectedMap == 2) ? SKYBLUE : BLUE;
+             DrawButton(map2Button, "MAP 2", map2Color, map2Hover);
+               
+             DrawText("Select Map",windowWidth/2.f-100,windowHeight/2.f+120,30,WHITE);
+              
+             //Check button cliks
+             if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                if(IsButtonHovered(playButton)){
+                    currentState=GameState::PLAYING;
+             // Set the selected map
+               if (selectedMap == 1)
+                currentMap = &map1;
+                else
+                currentMap = &map2;
+
+                    PlayMusicStream(bgMusic);
+                }
+                if (IsButtonHovered(quitButton))
+                {
+                    break;  
+                } 
+
+                // Map selection
+              if (IsButtonHovered(map1Button))
+            {
+            selectedMap = 1;
+                }
+             if (IsButtonHovered(map2Button))
+               {
+            selectedMap = 2;
+                }
+               
+
+             }
+             // Instructions
+            DrawText("Use WASD to move, Mouse to aim and shoot", 
+                     windowWidth/2 - 250, 
+                     windowHeight - 100, 
+                     20, 
+                     LIGHTGRAY);
+        }
+        else if(currentState==GameState::PLAYING){
 
         currentMap->render(knight, GetFrameTime());
         currentMap->handleCollision(knight);
@@ -160,9 +291,11 @@ for (auto& enemy : enemies)
         });
     }
 }
+        }
         EndDrawing();
     }
-
+ 
+UnloadTexture(menuBackground);   
 UnloadMusicStream(bgMusic);    
 UnloadSound(gunShot);
 UnloadSound(enemyDeath); 

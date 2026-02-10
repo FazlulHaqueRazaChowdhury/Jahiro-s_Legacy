@@ -55,15 +55,12 @@ void Character::tick(float deltaTime)
     DrawTextureEx(shadow,Vector2{playerScreenCenter.x-(float)shadow.width,playerScreenCenter.y-(float)shadow.height},0.f,2.f, WHITE);
     BaseCharacter::tick(deltaTime);
 
-<<<<<<< HEAD
     if(runFlag){
         dust.Render(Vector2{
         playerScreenCenter.x,
         playerScreenCenter.y-20.f
     }, deltaTime,rightLeft);
     }
-=======
->>>>>>> b28bada4b6e012061ed1a327357d838c131da682
     // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
   
 
