@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include <string>
 
+
 Character::Character(int winWidth, int winHeight) 
     : windowWidth(winWidth), windowHeight(winHeight)
 {
@@ -44,19 +45,28 @@ void Character::tick(float deltaTime)
         isAttacking = true;
     else
         isAttacking = false;
-
-    BaseCharacter::tick(deltaTime);
-
-    // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
-    // PLAYER CENTER (SCREEN)
+       // PLAYER CENTER (SCREEN)
     Vector2 playerScreenCenter = Vector2Add(
         getScreenPos(),
         {(width * scale) / 2.f, (height * scale) / 2.f}
     );
+        //Shadows
+
+    DrawTextureEx(shadow,Vector2{playerScreenCenter.x-(float)shadow.width,playerScreenCenter.y-(float)shadow.height},0.f,2.f, WHITE);
+    BaseCharacter::tick(deltaTime);
+
+    if(runFlag){
+        dust.Render(Vector2{
+        playerScreenCenter.x,
+        playerScreenCenter.y-20.f
+    }, deltaTime,rightLeft);
+    }
+    // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
+  
 
     // AIM DIRECTION 
     Vector2 mouseScreen = GetMousePosition();
-    Vector2 shootDir = Vector2Subtract(mouseScreen, playerScreenCenter);
+    Vector2 shootDir = Vector2Subtract(mouseScreen,getScreenPos());
     
     float rotation = atan2f(shootDir.y, shootDir.x) * RAD2DEG;
     
@@ -141,39 +151,48 @@ void Character::tick(float deltaTime)
         -15.f              // move gun UP (negative y)
     };
 
+    recoilOffset=Lerp(recoilOffset,0.f,recoilReturnSpeed*deltaTime);
+    Vector2 recoilVec=Vector2Scale(gunDir,-recoilOffset);
+
     Rectangle dest{
-        playerScreenCenter.x + gunOffset.x,
-        playerScreenCenter.y + gunOffset.y,
+        playerScreenCenter.x + gunOffset.x+recoilVec.x,
+        playerScreenCenter.y + gunOffset.y+recoilVec.y,
         weapon.width * gunScale,
         weapon.height * gunScale
     };
-
+    //Drawing the text for dest
+    std::string destText = "Gun Dest: " + std::to_string((int)dest.x) + ", " + std::to_string((int)dest.y);
+    DrawText(destText.c_str(), 10.f, 110.f, 20, RED);
+    //Converting gun screen position to world position for bullet spawning
     Vector2 origin{
         0.f, // closer to grip
         (weapon.height * gunScale) / 2.f
     };
-
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
+    // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
+
+   
 
     //Muzzle postion 
     // Hand position in screen space
     Vector2 handScreenPos = Vector2Add(playerScreenCenter, gunOffset);
     
     // Distance from hand to muzzle tip
-    float handToMuzzle = weapon.width * gunScale * 0.7f;
+    float handToMuzzle = weapon.width * gunScale*.8f; // adjust as needed
     
     // Muzzle position in screen space
+    handScreenPos.y -= 5.f; // adjust for better alignment
     Vector2 muzzleScreenPos = Vector2Add(
         handScreenPos,
         Vector2Scale(gunDir, handToMuzzle)
     );
-    
-    //  muzzle position to world space for bullet spawning
-    Vector2 muzzleWorldPos = Vector2Add(
-        worldPos,
-        Vector2Subtract(muzzleScreenPos, getScreenPos())
-    );
+        // muzzleScreenPos.y -= (15.f); // adjust for better alignment
+        // muzzleScreenPos.x += 5.f * flip; // adjust for better alignment
+        //  muzzle position to world space for bullet spawning
 
+    // DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
+    std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)muzzleScreenPos.x) + ", " + std::to_string((int)muzzleScreenPos.y);   
+    DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
     // DEBUG 
     std::string debugText = "Rotation: " + std::to_string(headRotate);
     DrawText(debugText.c_str(), 155, 280, 20, GREEN);
@@ -181,10 +200,12 @@ void Character::tick(float deltaTime)
     // Shoot
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B))
     {
-        bullets.emplace_back(muzzleWorldPos, gunDir);
+        bullets.emplace_back(muzzleScreenPos, Vector2Subtract(mouseScreen, muzzleScreenPos));
         if (shootSound) PlaySound(*shootSound); 
-    }
 
+        // recoil section 
+        recoilOffset=recoilStrength;
+    }
     // Bullets
     for (int i = 0; i < bullets.size(); i++)
     {

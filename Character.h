@@ -14,12 +14,14 @@ public:
     Rectangle getWeaponCollisionRec() { return weaponCollisionRec; }
     Texture2D weapon{LoadTexture("characters/gun.png")};
     Texture2D head{LoadTexture("characters/head.png")};
+    Texture2D shadow{LoadTexture("characters/shadow.png")};
     float getHealth() const { return health; }
     void takeDamage(float damage);
     std::vector<Bullet>& getBullets() { return bullets; }
     Rectangle getCharCollisionRec();
     float mainCharRL{1.f};
     void setShootSound(Sound* sound) { shootSound = sound; }
+
 private:
     int windowWidth{};
     int windowHeight{};
@@ -28,6 +30,10 @@ private:
     float health{100.f};
      std::vector<Bullet> bullets;
      Sound* shootSound{nullptr};
+
+     float recoilOffset=0.f;
+     float recoilStrength=8.f;
+     float recoilReturnSpeed=25.f;
 };
 
 #endif

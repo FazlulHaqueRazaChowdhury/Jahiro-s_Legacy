@@ -20,12 +20,20 @@ int main()
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
 
     InitAudioDevice();
+
+    //bg music
+    Music bgMusic=LoadMusicStream("sounds/Burn The World Waltz .mp3");
+    bgMusic.looping=true;
+    SetMusicVolume(bgMusic,0.5f);
+    PlayMusicStream(bgMusic);
+    Sound gunShot=LoadSound("sounds/freesound_community-080998_bullet-hit-39870 (3).mp3");
+    Sound enemyDeath=LoadSound("sounds/universfield-breeze-of-blood-122253.mp3");
     Texture2D cursor = LoadTexture("characters/cursor.png");
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map3.png");
     Texture2D map2Tex = LoadTexture("nature_tileset/map2.png");
    
-    Sound gunShot=LoadSound("sounds/freesound_community-080998_bullet-hit-39870 (3).mp3");
+    
 
 Map map1(map1Tex, 3.f);
 Map map2(map2Tex, 3.f);
@@ -45,7 +53,7 @@ map2.addProp(Prop({2340.f,370.f}, LoadTexture("nature_tileset/Torch.png"),4,1,1.
 Map* currentMap = &map1;
 
 
- Character knight{windowWidth, windowHeight};
+Character knight{windowWidth, windowHeight};
    
 Texture2D goblinIdle = LoadTexture("characters/goblin_idle_spritesheet.png");
 Texture2D goblinRun  = LoadTexture("characters/goblin_run_spritesheet.png");
@@ -70,11 +78,13 @@ for (int i = 0; i < MAX_ENEMIES; i++)
     );
 
     e.setTarget(&knight);
+    e.setDeathSound(enemyDeath);
     enemies.push_back(e);
 }
     SetTargetFPS(60);
     while (!WindowShouldClose())
-    { 
+    {   
+        UpdateMusicStream(bgMusic);
         BeginDrawing();
         ClearBackground(WHITE);
 
@@ -91,7 +101,7 @@ for (int i = 0; i < MAX_ENEMIES; i++)
         DrawTexturePro(
             cursor,
             Rectangle{0.f, 0.f, (float)cursor.width, (float)cursor.height},
-            Rectangle{(float)GetMouseX(), (float)GetMouseY()-40.f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
+            Rectangle{(float)GetMouseX()-(float)cursor.width * 0.05f* 0.5f, (float)GetMouseY()-(float)cursor.height * 0.05f* 0.5f, (float)cursor.width * 0.05f, ((float)cursor.height * 0.05f)},
             Vector2{0.f, 0.f},
             0.f,
             WHITE);
@@ -135,7 +145,7 @@ for (auto& enemy : enemies)
                 bullet.getCollisionRec(knight.getWorldPos()),
                 enemy.getCollisionRec()))
         {
-            enemy.setAlive(false);
+            enemy.takeDamage();
             bullet.alive = false; 
         }
     }
@@ -152,7 +162,10 @@ for (auto& enemy : enemies)
 }
         EndDrawing();
     }
+
+UnloadMusicStream(bgMusic);    
 UnloadSound(gunShot);
+UnloadSound(enemyDeath); 
 CloseAudioDevice();
     CloseWindow();
 }

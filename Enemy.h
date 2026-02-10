@@ -13,9 +13,12 @@ public:
     // added by shadman for respawn 
     //void setTarget(Character* character) { target = character; }
     void respawn(Vector2 pos);
+    void setDeathSound(Sound& sound){deathSound=&sound;}
+    void takeDamage();
 
 private:
     Character* target;
     float damagePerSec{10.f};
     float radius{25.f};
+    Sound* deathSound{nullptr};
 };

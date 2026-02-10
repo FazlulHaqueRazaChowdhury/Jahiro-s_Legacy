@@ -2,6 +2,7 @@
 #ifndef BASE_CHARACTER_H
 #define BASE_CHARACTER_H
 #include "raylib.h"
+#include "Particle.h"
 class BaseCharacter
 {
 public:
@@ -13,6 +14,8 @@ public:
     virtual Vector2 getScreenPos() = 0;
     bool getAlive() { return alive; }
     void setAlive(bool isAlive) { alive = isAlive; }
+    Particles dust;
+    float runFlag{false};
 protected:
     Texture2D texture{LoadTexture("characters/idle.png")};
     Texture2D idle{LoadTexture("characters/idle.png")};

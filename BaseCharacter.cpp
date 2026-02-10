@@ -1,6 +1,7 @@
 #include "BaseCharacter.h"
 #include "raymath.h"
 #include <string>
+
 BaseCharacter::BaseCharacter()
 {
     
@@ -50,12 +51,13 @@ void BaseCharacter::tick(float deltaTime)
         updateTime = 1.f/16.f;
         maxFrames = 8.f;
         worldPos = Vector2Add(worldPos, Vector2Scale(Vector2Normalize(velocity), speed));
+        runFlag = true;
         // velocity.x < 0.f ? rightLeft = -1.f : rightLeft = 1.f;    
 
     }
     else
     {
-
+        runFlag = false;
         texture = idle;
         maxFrames = 2.f;
         updateTime = 1.f/10.f;

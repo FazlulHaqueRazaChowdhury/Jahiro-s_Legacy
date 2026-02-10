@@ -38,3 +38,7 @@ void Enemy::respawn(Vector2 pos)
     worldPos = pos;
     setAlive(true);
 }
+void Enemy::takeDamage(){
+    setAlive(false);
+    if(deathSound) PlaySound(*deathSound);
+}
