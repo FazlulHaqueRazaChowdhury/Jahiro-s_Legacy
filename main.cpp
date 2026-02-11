@@ -29,7 +29,7 @@ int main()
     bgMusic.looping = true;
     SetMusicVolume(bgMusic, 0.5f);
     PlayMusicStream(bgMusic);
-    Sound gunShot = LoadSound("sounds/freesound_community-080998_bullet-hit-39870 (3).mp3");
+    Sound gunShot = LoadSound("sounds/freesound_community-gun-shots-from-a-distance-7-96391.mp3");
     Sound enemyDeath = LoadSound("sounds/universfield-breeze-of-blood-122253.mp3");
     Texture2D cursor = LoadTexture("characters/cursor.png");
 
@@ -66,7 +66,7 @@ int main()
 
     std::vector<Enemy> enemies;
 
-    const int MAX_ENEMIES = 1;
+    const int MAX_ENEMIES = 4;
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
