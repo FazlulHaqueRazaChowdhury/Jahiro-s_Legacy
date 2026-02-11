@@ -26,7 +26,7 @@ Rectangle BaseCharacter::getCollisionRec()
 void BaseCharacter::tick(float deltaTime)
 {
     worldPosLastFrame = worldPos;
-    Rectangle source{frame * width, height, rightLeft * width, height};
+    Rectangle source{frame * width, currentCol * height, rightLeft * width, height};
     Rectangle dest{getScreenPos().x, getScreenPos().y, scale * width, scale * height};
     float backward = 1.f;
     // update animation frame
@@ -35,11 +35,14 @@ void BaseCharacter::tick(float deltaTime)
     {
         frame += backward;
         runningTime = 0.f;
+        if(frame == maxFrames) animDone=true;
         if (frame > maxFrames)
             frame = 0;
         else if (frame < 0.f)
             frame = maxFrames;
+        
     }
+
         Vector2 mousePos = GetMousePosition();
         Vector2 relativePos = {600,360};
         if(velocity.x < 0.f) backward = -1.f;
@@ -48,7 +51,7 @@ void BaseCharacter::tick(float deltaTime)
     {
         // set worldPos = worldPos + velocity
         texture = run;
-        updateTime = 1.f/16.f;
+        updateTime = 1.f/12.f;
         maxFrames = 8.f;
         worldPos = Vector2Add(worldPos, Vector2Scale(Vector2Normalize(velocity), speed));
         runFlag = true;
@@ -59,9 +62,7 @@ void BaseCharacter::tick(float deltaTime)
     {
         runFlag = false;
         texture = idle;
-        maxFrames = 2.f;
-        updateTime = 1.f/10.f;
-
+        updateTime = 1.f/10.f; 
     }
 
     velocity = {};

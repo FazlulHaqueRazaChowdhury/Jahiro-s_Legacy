@@ -26,15 +26,15 @@ Menu::Menu(int winWidth, int winHeight)
     };
     
     settingsButton = {
-        windowWidth / 2.f - 600,
-        windowHeight - 100,
+        (float) windowWidth / 2.f - 600,
+        (float) windowHeight - 100.f,
         250,
         70
     };
     
     quitButton = {
-        windowWidth -250,
-        windowHeight - 100,
+        (float) windowWidth - 250.f,
+        (float) windowHeight - 100.f,
         170,
         70
     };
@@ -161,7 +161,7 @@ void Menu::renderMainMenu()
     DrawTextEx(
         customFont,
         instructions,
-        Vector2{windowWidth / 2.f - instSize.x / 2, windowHeight - 80},
+        Vector2{windowWidth / 2.f - instSize.x / 2, (float)windowHeight - 80.f},
         20,
         1,
         LIGHTGRAY

@@ -16,6 +16,10 @@ public:
     void setAlive(bool isAlive) { alive = isAlive; }
     Particles dust;
     float runFlag{false};
+    float runningTime{};
+    float updateTime{1.f / 15.f};
+    bool animDone{false};
+    float rightLeft{1.f};
 protected:
     Texture2D texture{LoadTexture("characters/idle.png")};
     Texture2D idle{LoadTexture("characters/idle.png")};
@@ -25,12 +29,10 @@ protected:
     Vector2 worldPos{};
     Vector2 worldPosLastFrame{};
     // 1 : facing right, -1 : facing left
-    float rightLeft{1.f};
+
     // animation variables
-    float runningTime{};
     float frame{};
     float maxFrames{2.f};
-    float updateTime{1.f / 15.f};
     float speed{4.f};
     float  maxIdleFrame{1.f};
     float width{(float)texture.width/maxFrames};
@@ -39,6 +41,7 @@ protected:
     Vector2 velocity{};
     bool isAttacking{false};
     bool mouseMovement{false};
+    float currentCol{1.f};
 private:
     bool alive{true};
 };

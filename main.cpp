@@ -62,11 +62,12 @@ int main()
     Texture2D slimeIdle = LoadTexture("characters/slime_idle_spritesheet.png");
     Texture2D slimeRun = LoadTexture("characters/slime_run_spritesheet.png");
 
+    Texture2D enem = LoadTexture("characters/enem.png");
     knight.setShootSound(&gunShot);
 
     std::vector<Enemy> enemies;
 
-    const int MAX_ENEMIES = 1;
+    const int MAX_ENEMIES = 10;
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
@@ -74,8 +75,7 @@ int main()
 
         Enemy e(
             GetRandomSpawnPos(),
-            isGoblin ? goblinIdle : slimeIdle,
-            isGoblin ? goblinRun : slimeRun);
+            enem,enem);
 
         e.setTarget(&knight);
         e.setDeathSound(enemyDeath);
