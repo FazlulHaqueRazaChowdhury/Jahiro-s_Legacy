@@ -10,6 +10,11 @@ Menu::Menu(int winWidth, int winHeight)
     // Load menu background
     menuBackground = LoadTexture("nature_tileset/landing-2_bg.png");
     customFont = LoadFont("fonts/XTypewriter-Bold.ttf");
+// Load icons
+    playIcon = LoadTexture("icons/play-button.png");
+    settingsIcon = LoadTexture("icons/cog.png");
+    quitIcon=LoadTexture("icons/exit-door.png");
+
     // main menu buttons
     playButton = {
         windowWidth / 2.f - 150,
@@ -26,9 +31,15 @@ Menu::Menu(int winWidth, int winHeight)
     };
     
     settingsButton = {
+<<<<<<< HEAD
         (float) windowWidth / 2.f - 600,
         (float) windowHeight - 100.f,
         250,
+=======
+        windowWidth / 2.f - 600,
+        windowHeight - 100,
+        100,
+>>>>>>> 31548d7fe112c5eed712a40f9d35653ce3f950d2
         70
     };
     
@@ -101,7 +112,10 @@ Menu::Menu(int winWidth, int winHeight)
 Menu::~Menu()
 {
     UnloadTexture(menuBackground);
-     UnloadFont(customFont);
+    UnloadFont(customFont);
+    UnloadTexture(settingsIcon);
+    UnloadTexture(playIcon);
+    UnloadTexture(quitIcon);
 }
 
 bool Menu::isButtonHovered(Rectangle button)
@@ -118,7 +132,7 @@ void Menu::drawButtonWithSize(Rectangle button, const char* text, Color normalCo
      currentColor.a = 120;
 
     DrawRectangleRec(button, currentColor);
-    DrawRectangleLinesEx(button, 3, BLACK);
+    // DrawRectangleLinesEx(button, 3, BLACK);
     
     // Use custom font
     Vector2 textSize = MeasureTextEx(customFont, text, fontSize, 2);
@@ -129,6 +143,67 @@ void Menu::drawButtonWithSize(Rectangle button, const char* text, Color normalCo
             button.x + (button.width - textSize.x) / 2,
             button.y + (button.height - fontSize) / 2
         },
+        fontSize,
+        2,
+        WHITE
+    );
+}
+
+void Menu::drawIconButton(Rectangle button, Texture2D icon, Color normalColor, Color hoverColor)
+{
+    Color currentColor = isButtonHovered(button) ? hoverColor : normalColor;
+    currentColor.a = 120;
+
+    DrawRectangleRec(button, currentColor);
+    // DrawRectangleLinesEx(button, 3, BLACK);
+    
+    // Center the icon in button
+    float iconSize = button.height * 0.7f;
+    DrawTexturePro(
+        icon,
+        Rectangle{0, 0, (float)icon.width, (float)icon.height},
+        Rectangle{
+            button.x + (button.width - iconSize) / 2,
+            button.y + (button.height - iconSize) / 2,
+            iconSize,
+            iconSize
+        },
+        Vector2{0, 0},
+        0.0f,
+        WHITE
+    );
+}
+void Menu::drawButtonWithIcon(Rectangle button, const char* text, Texture2D icon, Color normalColor, Color hoverColor, int fontSize)
+{
+    Color currentColor = isButtonHovered(button) ? hoverColor : normalColor;
+    currentColor.a = 120;
+
+    DrawRectangleRec(button, currentColor);
+    // DrawRectangleLinesEx(button, 3, BLACK);
+    
+    // Draw icon on the left side of button
+    float iconSize = button.height * 0.8f;  // Icon is 60% of button height
+    float iconX = button.x + 58;  //  padding from left
+    float iconY = button.y + (button.height - iconSize) / 2;
+    
+    DrawTexturePro(
+        icon,
+        Rectangle{0, 0, (float)icon.width, (float)icon.height},
+        Rectangle{iconX, iconY, iconSize, iconSize},
+        Vector2{0, 0},
+        0.0f,
+        WHITE
+    );
+    
+    // Draw text next to icon
+    Vector2 textSize = MeasureTextEx(customFont, text, fontSize, 2);
+    float textX = iconX + iconSize + 15;  // Icon + spacing
+    float textY = button.y + (button.height - fontSize) / 2;
+    
+    DrawTextEx(
+        customFont,
+        text,
+        Vector2{textX, textY},
         fontSize,
         2,
         WHITE
@@ -150,11 +225,11 @@ void Menu::renderMainMenu()
     );
     
     // Draw main buttons
-    drawButtonWithSize(playButton, "PLAY", DARKGREEN, GREEN, 45);
-    drawButtonWithSize(mapSelectButton, "MAP SELECT", DARKBLUE, BLUE, 35);
-    drawButtonWithSize(settingsButton, "SETTINGS", DARKPURPLE, PURPLE, 35);
-    drawButtonWithSize(quitButton, "QUIT", DARKGRAY, RED, 40);
-    
+     drawButtonWithIcon(playButton, "PLAY", playIcon, DARKGREEN, GREEN, 45);
+     drawButtonWithSize(mapSelectButton, "MAP SELECT", DARKBLUE, BLUE, 35);
+     drawIconButton(settingsButton, settingsIcon, DARKGRAY, PURPLE);
+     drawIconButton(quitButton, quitIcon, DARKGRAY, RED);
+
     // Instructions
     const char* instructions = "Use WASD to move, Mouse to aim and shoot";
     Vector2 instSize = MeasureTextEx(customFont, instructions, 20, 1);

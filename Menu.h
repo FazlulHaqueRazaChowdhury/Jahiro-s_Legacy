@@ -50,11 +50,17 @@ private:
     // Helper functions
     bool isButtonHovered(Rectangle button);
     void drawButtonWithSize(Rectangle button, const char* text, Color normalColor, Color hoverColor, int fontSize);
-    
+    void drawIconButton(Rectangle button, Texture2D icon, Color normalColor, Color hoverColor);
+   void drawButtonWithIcon(Rectangle button, const char* text, Texture2D icon, Color normalColor, Color hoverColor, int fontSize);
     // Render different screens
     void renderMainMenu();
     void renderMapSelection();
     void renderSettings();
+
+    // Icons
+    Texture2D playIcon;
+    Texture2D settingsIcon;
+    Texture2D quitIcon;
 };
 
 #endif
