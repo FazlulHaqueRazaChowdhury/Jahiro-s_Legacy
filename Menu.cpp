@@ -17,93 +17,87 @@ Menu::Menu(int winWidth, int winHeight)
 
     // main menu buttons
     playButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f - 120,
+        (float)windowWidth / 2.f - 150,
+        (float)windowHeight / 2.f - 120,
         300,
         70
     };
     
     mapSelectButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f - 30,
+        (float)windowWidth / 2.f - 150,
+        (float)windowHeight / 2.f - 30,
         300,
         70
     };
     
     settingsButton = {
-<<<<<<< HEAD
-        (float) windowWidth / 2.f - 600,
-        (float) windowHeight - 100.f,
-        250,
-=======
-        windowWidth / 2.f - 600,
-        windowHeight - 100,
-        100,
->>>>>>> 31548d7fe112c5eed712a40f9d35653ce3f950d2
-        70
+        (float)windowWidth / 2.f - 600,
+        (float)windowHeight - 100.f,
+        100.f,
+        70.f
     };
     
     quitButton = {
-        (float) windowWidth - 250.f,
-        (float) windowHeight - 100.f,
-        170,
-        70
+        (float)windowWidth - 250.f,
+        (float)windowHeight - 100.f,
+        170.f,
+        70.f
     };
     
     // map selection buttons
     map1Button = {
-        windowWidth / 2.f - 350,
-        windowHeight / 2.f - 50,
+        (float)windowWidth / 2.f - 350,
+        (float)windowHeight / 2.f - 50,
         300,
         80
     };
     
     map2Button = {
-        windowWidth / 2.f + 50,
-        windowHeight / 2.f - 50,
+        (float)windowWidth / 2.f + 50,
+        (float)windowHeight / 2.f - 50,
         350,
         80
     };
     
     backFromMapButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f + 120,
+        (float)windowWidth / 2.f - 150,
+        (float)windowHeight / 2.f + 120,
         300,
         60
     };
     
     // setting button
     musicUpButton = {
-        windowWidth / 2.f + 100,
-        windowHeight / 2.f - 80,
+        (float)windowWidth / 2.f + 100,
+        (float)windowHeight / 2.f - 80,
         80,
         60
     };
     
     musicDownButton = {
-        windowWidth / 2.f - 180,
-        windowHeight / 2.f - 80,
+        (float)windowWidth / 2.f - 180,
+        (float)windowHeight / 2.f - 80,
         80,
         60
     };
     
     sfxUpButton = {
-        windowWidth / 2.f + 100,
-        windowHeight / 2.f + 20,
+        (float)windowWidth / 2.f + 100,
+        (float)windowHeight / 2.f + 20,
         80,
         60
     };
     
     sfxDownButton = {
-        windowWidth / 2.f - 180,
-        windowHeight / 2.f + 20,
+        (float)windowWidth / 2.f - 180,
+        (float)windowHeight / 2.f + 20,
         80,
         60
     };
     
     backFromSettingsButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f + 150,
+        (float)windowWidth / 2.f - 150.f,
+        (float)windowHeight / 2.f + 150.f,
         300,
         60
     };
