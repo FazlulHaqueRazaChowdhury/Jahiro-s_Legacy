@@ -8,7 +8,7 @@
 class Character : public BaseCharacter
 {
 public:
-    Character(int winWidth, int winHeight);
+    Character(int winWidth, int winHeight, Texture2D *bulletTexture);
     virtual void tick(float deltaTime) override;
     virtual Vector2 getScreenPos() override;
     Rectangle getWeaponCollisionRec() { return weaponCollisionRec; }
@@ -21,7 +21,7 @@ public:
     Rectangle getCharCollisionRec();
     float mainCharRL{1.f};
     void setShootSound(Sound* sound) { shootSound = sound; }
-
+    Texture2D *BulletTex;
 private:
     int windowWidth{};
     int windowHeight{};

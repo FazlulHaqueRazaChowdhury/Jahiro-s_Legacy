@@ -17,87 +17,87 @@ Menu::Menu(int winWidth, int winHeight)
 
     // main menu buttons
     playButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f - 120,
+        (float)windowWidth / 2.f - 150,
+        (float)windowHeight / 2.f - 120,
         300,
         70
     };
     
     mapSelectButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f - 30,
+        (float)windowWidth / 2.f - 150,
+        (float)windowHeight / 2.f - 30,
         300,
         70
     };
     
     settingsButton = {
-        windowWidth / 2.f - 600,
-        windowHeight - 100,
-        100,
-        70
+        (float)windowWidth / 2.f - 600,
+        (float)windowHeight - 100.f,
+        100.f,
+        70.f
     };
     
     quitButton = {
-        windowWidth -250,
-        windowHeight - 100,
-        170,
-        70
+        (float)windowWidth - 250.f,
+        (float)windowHeight - 100.f,
+        170.f,
+        70.f
     };
     
     // map selection buttons
     map1Button = {
-        windowWidth / 2.f - 350,
-        windowHeight / 2.f - 50,
+        (float)windowWidth / 2.f - 350,
+        (float)windowHeight / 2.f - 50,
         300,
         80
     };
     
     map2Button = {
-        windowWidth / 2.f + 50,
-        windowHeight / 2.f - 50,
+        (float)windowWidth / 2.f + 50,
+        (float)windowHeight / 2.f - 50,
         350,
         80
     };
     
     backFromMapButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f + 120,
+        (float)windowWidth / 2.f - 150,
+        (float)windowHeight / 2.f + 120,
         300,
         60
     };
     
     // setting button
     musicUpButton = {
-        windowWidth / 2.f + 100,
-        windowHeight / 2.f - 80,
+        (float)windowWidth / 2.f + 100,
+        (float)windowHeight / 2.f - 80,
         80,
         60
     };
     
     musicDownButton = {
-        windowWidth / 2.f - 180,
-        windowHeight / 2.f - 80,
+        (float)windowWidth / 2.f - 180,
+        (float)windowHeight / 2.f - 80,
         80,
         60
     };
     
     sfxUpButton = {
-        windowWidth / 2.f + 100,
-        windowHeight / 2.f + 20,
+        (float)windowWidth / 2.f + 100,
+        (float)windowHeight / 2.f + 20,
         80,
         60
     };
     
     sfxDownButton = {
-        windowWidth / 2.f - 180,
-        windowHeight / 2.f + 20,
+        (float)windowWidth / 2.f - 180,
+        (float)windowHeight / 2.f + 20,
         80,
         60
     };
     
     backFromSettingsButton = {
-        windowWidth / 2.f - 150,
-        windowHeight / 2.f + 150,
+        (float)windowWidth / 2.f - 150.f,
+        (float)windowHeight / 2.f + 150.f,
         300,
         60
     };
@@ -230,7 +230,7 @@ void Menu::renderMainMenu()
     DrawTextEx(
         customFont,
         instructions,
-        Vector2{windowWidth / 2.f - instSize.x / 2, windowHeight - 80},
+        Vector2{windowWidth / 2.f - instSize.x / 2, (float)windowHeight - 80.f},
         20,
         1,
         LIGHTGRAY
@@ -254,15 +254,15 @@ void Menu::renderMapSelection()
     // Map buttons with selection highlight
     Color map1Color = (selectedMap == 1) ? BLUE : DARKBLUE;
     Color map1Hover = (selectedMap == 1) ? SKYBLUE : BLUE;
-    drawButtonWithSize(map1Button, "ORIGINAL", map1Color, map1Hover, 38);
+    drawButtonWithSize(map1Button, "JAHIRO'S JANDA", map1Color, map1Hover, 38);
     
     Color map2Color = (selectedMap == 2) ? BLUE : DARKBLUE;
     Color map2Hover = (selectedMap == 2) ? SKYBLUE : BLUE;
-    drawButtonWithSize(map2Button, "APOCALYPTIC", map2Color, map2Hover, 38);
+    drawButtonWithSize(map2Button, "SHONY'S AKHRA", map2Color, map2Hover, 38);
     
     // Display current selection
     std::string selectionText = "Current: ";
-    selectionText += (selectedMap == 1) ? "ORIGINAL" : "APOCALYPTIC";
+    selectionText += (selectedMap == 1) ? "JAHIRO'S JANDA" : "SHONY'S AKHRA";
     Vector2 selSize = MeasureTextEx(customFont, selectionText.c_str(), 30, 2);
     DrawTextEx(
         customFont,

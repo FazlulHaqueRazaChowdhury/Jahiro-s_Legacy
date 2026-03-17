@@ -3,8 +3,8 @@
 #include <string>
 
 
-Character::Character(int winWidth, int winHeight) 
-    : windowWidth(winWidth), windowHeight(winHeight)
+Character::Character(int winWidth, int winHeight,Texture2D *bulletTexture) 
+    : windowWidth(winWidth), windowHeight(winHeight), BulletTex(bulletTexture)
 {
     width = texture.width / maxFrames;
     height = texture.height;
@@ -39,7 +39,7 @@ void Character::tick(float deltaTime)
 
     std::string debugText2 = "Velocity Coord: " + std::to_string((int)GetMousePosition().x) +
                              ", " + std::to_string((int)GetMousePosition().y);
-    DrawText(debugText2.c_str(), 55, 80, 20, GREEN);
+    // DrawText(debugText2.c_str(), 55, 80, 20, GREEN);
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         isAttacking = true;
@@ -77,7 +77,7 @@ void Character::tick(float deltaTime)
     };
     
     std::string rotationText = std::to_string(rotation);
-    DrawText(rotationText.c_str(), 10.f, 80.f, 20, RED);
+    // DrawText(rotationText.c_str(), 10.f, 80.f, 20, RED);
 
     //Flip
     float flip{1.f};
@@ -162,7 +162,7 @@ void Character::tick(float deltaTime)
     };
     //Drawing the text for dest
     std::string destText = "Gun Dest: " + std::to_string((int)dest.x) + ", " + std::to_string((int)dest.y);
-    DrawText(destText.c_str(), 10.f, 110.f, 20, RED);
+    // DrawText(destText.c_str(), 10.f, 110.f, 20, RED);
     //Converting gun screen position to world position for bullet spawning
     Vector2 origin{
         0.f, // closer to grip
@@ -192,15 +192,15 @@ void Character::tick(float deltaTime)
 
     // DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
     std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)muzzleScreenPos.x) + ", " + std::to_string((int)muzzleScreenPos.y);   
-    DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
+    // DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
     // DEBUG 
     std::string debugText = "Rotation: " + std::to_string(headRotate);
-    DrawText(debugText.c_str(), 155, 280, 20, GREEN);
+    // DrawText(debugText.c_str(), 155, 280, 20, GREEN);
 
     // Shoot
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B))
     {
-        bullets.emplace_back(muzzleScreenPos, Vector2Subtract(mouseScreen, muzzleScreenPos));
+        bullets.emplace_back(BulletTex,muzzleScreenPos, Vector2Subtract(mouseScreen, muzzleScreenPos));
         if (shootSound) PlaySound(*shootSound); 
 
         // recoil section 
@@ -223,6 +223,7 @@ void Character::tick(float deltaTime)
 
 void Character::takeDamage(float damage)
 {
+    // health -= damage;
     if (health <= 0.f)
         setAlive(false);
 }

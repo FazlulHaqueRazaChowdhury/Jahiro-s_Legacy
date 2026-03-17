@@ -13,6 +13,7 @@ public:
     void addProp(const Prop& prop);
     void render(Character& knight,float deltatime);
     void handleCollision(Character& knight); 
+    
     private:
     Texture2D map;
     float mapScale{1.f};

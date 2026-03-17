@@ -6,6 +6,7 @@ enum class GameState
     MENU,
     MAP_SELECTION,
     SETTINGS,
+    TRANSITION,
     PLAYING,
     PAUSED,
     GAME_OVER,

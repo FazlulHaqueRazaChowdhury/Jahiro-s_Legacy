@@ -17,8 +17,8 @@ public:
     float getSfxVolume() const { return sfxVolume; }
     
 private:
-    int windowWidth;
-    int windowHeight;
+    float windowWidth;
+    float windowHeight;
     
     // Textures
     Texture2D menuBackground;

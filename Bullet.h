@@ -6,7 +6,7 @@
 class Bullet
 {
 public:
-    Bullet(Vector2 pos, Vector2 dir);
+    Bullet(Texture2D *texture,Vector2 pos, Vector2 dir);
     void tick(float dt, Vector2 knightWorldPos, float mainCharRL, Vector2 origin);
     Vector2 gunPos{};
     Rectangle getCollisionRec(Vector2 knightWorldPos) const;
