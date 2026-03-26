@@ -10,6 +10,7 @@ BaseCharacter::BaseCharacter()
 void BaseCharacter::undoMovement()
 {
     worldPos = worldPosLastFrame;
+
 }
 
 Rectangle BaseCharacter::getCollisionRec()
@@ -27,21 +28,34 @@ void BaseCharacter::tick(float deltaTime)
 {
     worldPosLastFrame = worldPos;
     Rectangle source{frame * width, currentCol * height, rightLeft * width, height};
-    Rectangle dest{getScreenPos().x, getScreenPos().y, scale * width, scale * height};
+    Rectangle dest{getScreenPos().x , getScreenPos().y , scale * width, scale * height};
     float backward = 1.f;
     // update animation frame
+// Remove the instant frame skip
+    // if(!getAlive()) frame = maxFrames-1.f; 
+    
     runningTime += deltaTime;
-    if(!getAlive()) frame = maxFrames-1.f;
-    if (runningTime >= updateTime && getAlive())
+    if (runningTime >= updateTime)
     {
-        frame += backward;
         runningTime = 0.f;
-        if (frame > maxFrames)
-            frame = 0;
-        else if (frame < 0.f)
-            frame = maxFrames;
         
-        
+        if (!getAlive()) 
+        {
+            // If dead, play the animation but freeze on the final frame
+            if (frame < maxFrames - 1.f) 
+            {
+                frame += 1.f;
+            }
+        } 
+        else 
+        {
+            // Normal looping logic for when alive
+            frame += backward;
+            if (frame > maxFrames)
+                frame = 0;
+            else if (frame < 0.f)
+                frame = maxFrames;
+        }
     }
 
         Vector2 mousePos = GetMousePosition();

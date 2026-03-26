@@ -12,6 +12,7 @@ public:
     Rectangle getCollisionRec();
     virtual void tick(float deltaTime);
     virtual Vector2 getScreenPos() = 0;
+    Vector2 direction{};
     bool getAlive() { return alive; }
     void setAlive(bool isAlive) { alive = isAlive; }
     Particles dust;
@@ -22,13 +23,13 @@ public:
     float rightLeft{1.f};
     void setScale(float s){scale=s;}
     float getScale(){return scale;}
-protected:
+    Vector2 worldPos{};
+    protected:
     Texture2D texture{LoadTexture("characters/idle.png")};
     Texture2D idle{LoadTexture("characters/idle.png")};
     Texture2D run{LoadTexture("characters/walk.png")};
     Texture2D attack{LoadTexture("characters/idle.png")};
     Texture2D runattack{LoadTexture("characters/idle.png")};
-    Vector2 worldPos{};
     Vector2 worldPosLastFrame{};
     // 1 : facing right, -1 : facing left
 

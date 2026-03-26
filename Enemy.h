@@ -24,6 +24,7 @@ public:
     float radius{25.f};
     Sound* deathSound{nullptr};
 
+
 private:
  
 };

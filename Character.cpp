@@ -217,7 +217,7 @@ void Character::tick(float deltaTime)
             i--;
         }
     }
-
+    
     mainCharRL = rightLeft;
 }
 

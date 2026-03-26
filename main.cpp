@@ -69,16 +69,51 @@ int main()
 
     Texture2D BulletTex = LoadTexture("characters/All_Fire_Bullet_Pixel_16x16 (1).png");
     Character knight{windowWidth, windowHeight, &BulletTex};
-    Texture2D redEnem = LoadTexture("characters/enem.png");
+    Texture2D gobRun = LoadTexture("characters/Goblin/run.png");
+    Texture2D gobAttk = LoadTexture("characters/Goblin/Attack.png");
+    Texture2D gobDeath = LoadTexture("characters/Goblin/Death.png");
+    Texture2D gobHit = LoadTexture("characters/Goblin/hit.png");
 
-    Texture2D skelIdle = LoadTexture("characters/Skeleton/Idle.png");
-    Texture2D skelWalk = LoadTexture("characters/Skeleton/Walk.png");
-    Texture2D skelAttack = LoadTexture("characters/Skeleton/Attack.png");
-    Texture2D skelDeath = LoadTexture("characters/Skeleton/Death.png");
-    Texture2D skelHit = LoadTexture("characters/Skeleton/Take Hit.png");
+    // Enemy2 goblin({1500.f, 1500.f}, &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
+    // goblin.setTarget(&knight);
+    // goblin.setDeathSound(enemyDeath);
+    knight.setShootSound(&gunShot);
     knight.setShootSound(&gunShot);
 
+    Texture2D eyeRun = LoadTexture("characters/FlyingEye/run.png");
+    Texture2D eyeAttk = LoadTexture("characters/FlyingEye/Attack.png");
+    Texture2D eyeDeath = LoadTexture("characters/FlyingEye/Death.png");
+    Texture2D eyeHit = LoadTexture("characters/FlyingEye/hit.png");
 
+
+    std::vector<Enemy2> enemies2;
+    const int MAX_ENEMIES = 5; // Change this from 0 to however many you want!
+
+    for (int i = 0; i < MAX_ENEMIES; i++)
+    {
+        // 0 = Goblin, 1 = Flying Eye
+        int randomType = GetRandomValue(0, 1); 
+
+        if (randomType == 0)
+        {
+            Enemy2 e(GetRandomSpawnPos(), &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
+            e.setTarget(&knight);
+            e.setDeathSound(enemyDeath);
+            enemies2.push_back(e);
+        }
+        else
+        {
+            // Note: Fixed the typo here to pass &eyeDeath at the end!
+            Enemy2 e(GetRandomSpawnPos(), &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
+            e.setTarget(&knight);
+            e.setDeathSound(enemyDeath);
+            enemies2.push_back(e);
+        }
+    }
+    // Enemy2 eye({2500.f, 1500.f}, &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
+
+    // eye.setTarget(&knight);
+    // eye.setDeathSound(enemyDeath);
     
     Scenetransition transition(windowWidth, windowHeight);
     transition.setBanner(&loadingBanner);
@@ -116,23 +151,6 @@ int main()
 
         grassPatches.emplace_back(spawnPos);
     }
-    std::vector<Enemy> enemies;
-    std::vector<Enemy2> enemies2;
-
-    const int MAX_ENEMIES = 3;
-
-    for (int i = 0; i < MAX_ENEMIES; i++)
-    {
-
-        Enemy e(
-            GetRandomSpawnPos(),
-            &redEnem, &redEnem, 100.f, 1.5f);
-
-        e.setTarget(&knight);
-        e.setDeathSound(enemyDeath);
-        enemies.push_back(e);
-    }
-
     // game state
     Menu menu(windowWidth, windowHeight);
     GameState currentState = GameState::MENU;
@@ -240,11 +258,42 @@ int main()
                 std::string knightsHealth = "Health: ";
                 knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
                 // DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, RED);
+                
             }
+            
             // Tick the grass and pass the knight's world position
             for (auto &grass : grassPatches)
             {
                 grass.tick(GetFrameTime(), knight.getWorldPos());
+            }
+           for (auto &enemy : enemies2)
+            {
+                enemy.tick(GetFrameTime());
+                
+                // Only apply push vector if they are alive (so dead bodies don't slide around!)
+                if (enemy.getAlive())
+                {
+                    Vector2 push = enemy.getPushVector(enemies2);
+                    // Shift the enemy's position slightly to keep them separated
+                    enemy.setWorldPos(Vector2Add(enemy.getWorldPos(), push));
+                }
+            }
+            // ... (Keep your leaves tick logic) ...
+
+            // BULLET COLLISIONS (You can delete the old hardcoded goblin/eye bullet checks)
+            for (auto &enemy : enemies2)
+            {
+                for (auto &bullet : knight.getBullets())
+                {
+                    if (enemy.getAlive() &&
+                        CheckCollisionRecs(
+                            bullet.getCollisionRec(knight.getWorldPos()),
+                            enemy.getCollisionRec()))
+                    {
+                        enemy.takeDamage();
+                        bullet.alive = false;
+                    }
+                }
             }
             knight.tick(GetFrameTime());
             // check map bounds
@@ -255,10 +304,6 @@ int main()
                 knight.undoMovement();
             }
 
-            for (auto &enemy : enemies)
-            {
-                enemy.tick(GetFrameTime());
-            }
             for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
@@ -268,20 +313,6 @@ int main()
             {
                 leaf.tick(GetFrameTime());
             }
-            for (auto &enemy : enemies)
-            {
-                for (auto &bullet : knight.getBullets())
-                {
-                    if (enemy.getAlive() &&
-                        CheckCollisionRecs(
-                            bullet.getCollisionRec(knight.getWorldPos()),
-                            enemy.getCollisionRec()))
-                    {
-                        enemy.takeDamage();
-                        bullet.alive = false;
-                    }
-                }
-            }
             for (auto &enemy : enemies2)
             {
                 for (auto &bullet : knight.getBullets())
@@ -297,18 +328,6 @@ int main()
                 }
             }
 
-            for (auto &enemy : enemies)
-            {
-                if (!enemy.getAlive())
-                {
-                    runningTime += GetFrameTime();
-                    if (runningTime >= updateTime)
-                    {
-                        enemy.respawn(GetRandomSpawnPos());
-                        runningTime = 0.f;
-                    }
-                }
-            }
             for (auto &enemy : enemies2)
             {
                 if (!enemy.getAlive())
