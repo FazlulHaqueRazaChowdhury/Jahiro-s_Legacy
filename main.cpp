@@ -53,6 +53,8 @@ int main()
     Map map1(map1Tex, 3.f);
     Map map2(map2Tex, 3.f);
     Texture2D fallSprite = LoadTexture("nature_tileset/spring.png");
+    Texture2D fallSpriteAkra = LoadTexture("nature_tileset/fall.png");
+
     // MAP 1 PROPS
     map1.addProp(Prop({750.f, 500.f}, LoadTexture("nature_tileset/tree.png"), 30, 0, 4.f));
     map1.addProp(Prop({800.f, 600.f}, LoadTexture("nature_tileset/tree2.png"), 16, 0, 1.5f));
@@ -84,19 +86,33 @@ int main()
     Texture2D eyeAttk = LoadTexture("characters/FlyingEye/Attack.png");
     Texture2D eyeDeath = LoadTexture("characters/FlyingEye/Death.png");
     Texture2D eyeHit = LoadTexture("characters/FlyingEye/hit.png");
+    
+    Texture2D mushRun = LoadTexture("characters/Mushroom/Run.png");
+    Texture2D mushAttk = LoadTexture("characters/Mushroom/Attack.png");
+    Texture2D mushDeath = LoadTexture("characters/Mushroom/Death.png");
+    Texture2D mushHit = LoadTexture("characters/Mushroom/hit.png");
 
+    // Texture2D skelRun = LoadTexture("characters/Skeleton/Walk.png");
+    // Texture2D skelAttk = LoadTexture("characters/Skeleton/Attack.png");
+    // Texture2D skelDeath = LoadTexture("characters/Skeleton/Death.png");
+    // Texture2D skelHit = LoadTexture("characters/Skeleton/hit.png");
 
     std::vector<Enemy2> enemies2;
-    const int MAX_ENEMIES = 5; // Change this from 0 to however many you want!
+    const int MAX_ENEMIES = 4; 
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         // 0 = Goblin, 1 = Flying Eye
-        int randomType = GetRandomValue(0, 1); 
-
+        int randomType = i%3; 
         if (randomType == 0)
         {
             Enemy2 e(GetRandomSpawnPos(), &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
+            e.setTarget(&knight);
+            e.setDeathSound(enemyDeath);
+            enemies2.push_back(e);
+        }
+        else if(randomType == 1){
+            Enemy2 e(GetRandomSpawnPos(), &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
@@ -110,47 +126,11 @@ int main()
             enemies2.push_back(e);
         }
     }
-    // Enemy2 eye({2500.f, 1500.f}, &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
-
-    // eye.setTarget(&knight);
-    // eye.setDeathSound(enemyDeath);
     
     Scenetransition transition(windowWidth, windowHeight);
     transition.setBanner(&loadingBanner);
 
-    std::vector<Grass> grassPatches;
 
-    // Adjusting for the 3.f map scale!
-    // x, y, width, height
-    Rectangle topLawn = {550.f, 0.f, 1800.f, 750.f};      // Pushed right to clear the left building
-    Rectangle rightLawn = {2600.f, 0.f, 800.f, 800.f};    // Way off to the right
-    Rectangle bottomLawn = {800.f, 950.f, 1200.f, 400.f}; // Down around the Yin-Yang
-
-    // Plant 300 patches of grass
-    for (int i = 0; i < 1000; i++)
-    {
-        Vector2 spawnPos;
-        int lawnChoice = GetRandomValue(1, 10); // Use a 1-10 range for weighting
-
-        // Give the massive top lawn 70% of the grass
-        if (lawnChoice <= 7)
-        {
-            spawnPos.x = (float)GetRandomValue(topLawn.x, topLawn.x + topLawn.width);
-            spawnPos.y = (float)GetRandomValue(topLawn.y, topLawn.y + topLawn.height);
-        }
-        else if (lawnChoice <= 8)
-        { // 10% to the right courtyard
-            spawnPos.x = (float)GetRandomValue(rightLawn.x, rightLawn.x + rightLawn.width);
-            spawnPos.y = (float)GetRandomValue(rightLawn.y, rightLawn.y + rightLawn.height);
-        }
-        else
-        { // 20% to the bottom Yin-Yang lawn
-            spawnPos.x = (float)GetRandomValue(bottomLawn.x, bottomLawn.x + bottomLawn.width);
-            spawnPos.y = (float)GetRandomValue(bottomLawn.y, bottomLawn.y + bottomLawn.height);
-        }
-
-        grassPatches.emplace_back(spawnPos);
-    }
     // game state
     Menu menu(windowWidth, windowHeight);
     GameState currentState = GameState::MENU;
@@ -159,17 +139,14 @@ int main()
     SetExitKey(0);
 
     std::vector<Leaf> leaves;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 25; i++)
     {
         // Pass the memory address (&) of the texture
-        leaves.emplace_back(GetRandomLeafPos(), &fallSprite);
+        leaves.emplace_back(GetRandomLeafPos(), &fallSprite,&fallSpriteAkra);
     }
 
     float updateTime = 1.f / 2.f;
     float runningTime{};
-
-    float leafUpdateTime = 1.f / 12.f;
-    float leafRunningTime{};
 
     while (!WindowShouldClose() && currentState != GameState::QUIT)
     {
@@ -261,11 +238,7 @@ int main()
                 
             }
             
-            // Tick the grass and pass the knight's world position
-            for (auto &grass : grassPatches)
-            {
-                grass.tick(GetFrameTime(), knight.getWorldPos());
-            }
+
            for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
@@ -308,10 +281,10 @@ int main()
             {
                 enemy.tick(GetFrameTime());
             }
-
+            float currMap = menu.getSelectedMap();
             for (auto &leaf : leaves)
             {
-                leaf.tick(GetFrameTime());
+                leaf.tick(GetFrameTime(),currMap);
             }
             for (auto &enemy : enemies2)
             {

@@ -6,11 +6,13 @@
 class Leaf
 {
 public:
-    Leaf(Vector2 pos, Texture2D* leafTexture); 
-    void tick(float deltaTime);
+    Leaf(Vector2 pos, Texture2D* leafTexture, Texture2D* leafTexture2); 
+    void tick(float deltaTime,float map);
 
 private:
-    Texture2D* texture;
+    Texture2D texture;
+    Texture2D texture1st;
+    Texture2D texture2nd;
     Vector2 position;
     Vector2 velocity;
     

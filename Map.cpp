@@ -13,6 +13,7 @@ void Map::render(Character& knight,float deltatime){
     Vector2 mapPos=Vector2Scale(knight.getWorldPos(),-1.f);
     //drawing map
     DrawTextureEx(map,mapPos,0.f,mapScale, WHITE);
+  
     //drawing Props
     for(auto& prop:props){
         prop.Render(knight.getWorldPos(),deltatime);

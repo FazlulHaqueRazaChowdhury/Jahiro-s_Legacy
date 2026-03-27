@@ -2,10 +2,10 @@
 #include "raymath.h"
 #include <math.h> 
 
-Leaf::Leaf(Vector2 pos, Texture2D* leafTexture) : position(pos), texture(leafTexture)
+Leaf::Leaf(Vector2 pos, Texture2D* leafTexture, Texture2D* leafTexture2) : position(pos), texture1st(*leafTexture),texture2nd(*leafTexture2)
 {
-    width = (float)texture->width / 5.f;
-    height = (float)texture->height;
+    width = (float)texture1st.width / 5.f;
+    height = (float)texture1st.height;
 
     // 1. DEPTH (PARALLAX EFFECT)
     // Random size between 1.0 and 3.0
@@ -29,8 +29,11 @@ Leaf::Leaf(Vector2 pos, Texture2D* leafTexture) : position(pos), texture(leafTex
     position.y = (float)GetRandomValue(-50, 770); 
 }
 
-void Leaf::tick(float deltaTime)
+void Leaf::tick(float deltaTime,float map)
 {
+    if(map == 1.f) texture = texture1st;
+    else texture = texture2nd;
+
     position.x += velocity.x * deltaTime;
     position.y += velocity.y * deltaTime;
     
@@ -60,7 +63,7 @@ void Leaf::tick(float deltaTime)
 
     // Draw using the leaf's unique scale
     DrawTexturePro(
-        *texture, 
+        texture, 
         Rectangle{frames * width, 0.f, width, height},
         Rectangle{position.x, position.y + currentSwayY, width * scale, height * scale}, 
         Vector2{width * scale / 2.f, height * scale / 2.f},
