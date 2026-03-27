@@ -137,6 +137,7 @@ int main()
     Health health(&knight, nullptr, Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
+    
 
     std::vector<Leaf> leaves;
     for (int i = 0; i < 25; i++)
