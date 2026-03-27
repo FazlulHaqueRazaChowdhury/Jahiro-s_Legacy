@@ -132,14 +132,14 @@ void Enemy2::tick(float deltaTime)
     DrawTexturePro(enemtexture, source, dest, Vector2{0.f, 0.f}, 0.f, WHITE);
     // --- DRAW SHADOW FIRST ---
     // 1. Made the scale slightly smaller so it doesn't look like a giant hole
-    float shadowScale = scale * 1.0f; 
+    float shadowScale = scale * 1.2f; 
     
     // 2. Center X stays the same
     float shadowX = getScreenPos().x + ((scale * textureWidth) / 2.0f) - ((shadow.width * shadowScale) / 2.0f);
     
     // 3. Center Y: We now subtract the ENTIRE shadow height to pull it up, 
     // then add a tiny offset to fine-tune it perfectly under their feet.
-    float shadowY = getScreenPos().y + (scale * textureHeight) - (shadow.height * shadowScale) + (20.f * scale); 
+    float shadowY = getScreenPos().y + (scale * textureHeight) - (shadow.height * shadowScale) - (25.f * scale); 
 
     if (getAlive()) 
     {
