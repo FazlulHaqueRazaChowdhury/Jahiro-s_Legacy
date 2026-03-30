@@ -24,6 +24,18 @@ class Character : public BaseCharacter
     void setShootSound(Sound* sound) { shootSound = sound; }
     Texture2D *BulletTex;
     void setHealth(float heal);
+    //bullet
+    int currentAmmo{50};
+    int maxAmmo{50};
+    bool isReloading{false};
+    float reloadTime{1.5f}; 
+    float reloadTimer{0.f};
+
+    int getCurrentAmmo() const { return currentAmmo; }
+    int getMaxAmmo() const { return maxAmmo; }
+    bool getIsReloading() const { return isReloading; }
+ 
+
 private:
     int windowWidth{};
     int windowHeight{};

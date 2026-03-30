@@ -41,7 +41,7 @@ public:
     Sound* deathSound{nullptr};
 
     // Public Stats
-    float health{100.f};
+    float health{50.f};
     float damagePerSec{10.f};
     float radius{5.f};
     float enemmaxFrame{8.f};

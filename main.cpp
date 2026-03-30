@@ -31,7 +31,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
@@ -44,7 +44,7 @@ int main()
     Texture2D introPage = LoadTexture("nature_tileset/Game_intro Page.png");
     float introAlpha = 1.f;
     float introTimer = 0.f;
-    float introDuration = 20.f;
+    float introDuration = 5.f;
 
     // bg music
     Music bgMusic = LoadMusicStream("sounds/Burn The World Waltz .mp3");
@@ -196,12 +196,13 @@ int main()
             // skip with any key
             if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                 currentState = GameState::MENU;
+                
         }
 
         else if (currentState == GameState::MENU ||
                  currentState == GameState::MAP_SELECTION ||
                  currentState == GameState::SETTINGS)
-            { // menuscreen
+        { // menuscreen
             menu.render(currentState);
             GameState newState = menu.handleInput(currentState);
 
@@ -226,6 +227,7 @@ int main()
 
         else if (currentState == GameState::TRANSITION)
         {
+            
 
             if (nextState == GameState::PLAYING)
             {
@@ -243,13 +245,13 @@ int main()
             }
         }
 
-        else if (currentState == GameState::PLAYING)
+        else if (currentState == GameState::PLAYING && knight.getAlive())
         {
+                if (IsKeyPressed(KEY_ESCAPE))
+                currentState = GameState::MENU;
 
             currentMap->render(knight, GetFrameTime());
             currentMap->handleCollision(knight);
-            if (IsKeyPressed(KEY_ESCAPE))
-                currentState = GameState::MENU;
             HideCursor();
             DrawTexturePro(
                 cursor,
@@ -286,32 +288,33 @@ int main()
             }
             // enemy respawning && game core logics
             lvl = 1 + (enemiesKilled / inc);
-            if(lvl > preLvl){
+            if (lvl > preLvl)
+            {
                 knight.setHealth(100.f);
                 preLvl = lvl;
             }
-            float currentMaxHealth = 100.f + (lvl * 20.f*0.15);
+            float currentMaxHealth = 50 + (lvl * 20.f * 0.5);
             float currentSpeed = 2.0f + (lvl * 0.08f);
             float respawnDelay = 1.0f - (lvl * 0.1f);
             if (respawnDelay < 0.2f)
                 respawnDelay = 0.2f;
-runningTime += GetFrameTime(); 
+            runningTime += GetFrameTime();
 
-if (runningTime >= respawnDelay)
-{
-    for (auto &enemy : enemies2)
-    {
-        if (!enemy.getAlive())
-        {
-            enemy.respawn(GetRandomSpawnPos(), currentMaxHealth, currentSpeed);
-            runningTime = 0.f; 
-            break;             
-        }
-    }
-}
+            if (runningTime >= respawnDelay)
+            {
+                for (auto &enemy : enemies2)
+                {
+                    if (!enemy.getAlive())
+                    {
+                        enemy.respawn(GetRandomSpawnPos(), currentMaxHealth, currentSpeed);
+                        runningTime = 0.f;
+                        break;
+                    }
+                }
+            }
             // check map bounds
             if (
-                knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
+                knight.getWorldPos().y <= 10.f || knight.getWorldPos().x <= 49.f ||
                 (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f || knight.getWorldPos().x > 1443.f || (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f))
             {
                 knight.undoMovement();
@@ -332,15 +335,26 @@ if (runningTime >= respawnDelay)
             int topBoxY = 20;
             DrawRectangle(topBoxX, topBoxY, 320, 80, Fade(BLACK, 0.8f));
             DrawRectangleLines(topBoxX, topBoxY, 320, 80, WHITE);
-            DrawText(TextFormat("Shony Eliminated: %d", enemiesKilled), topBoxX + 15, topBoxY + 15, 20, WHITE);
+            DrawText(TextFormat("JAHIRO's IJJOT: %d", enemiesKilled*lvl), topBoxX + 15, topBoxY + 15, 20, WHITE);
             DrawText(TextFormat("Level: %d", lvl), topBoxX + 15, topBoxY + 45, 20, WHITE);
             int bottomBoxX = 1280 - 280;
             int bottomBoxY = 720 - 70;
             DrawRectangle(bottomBoxX, bottomBoxY, 260, 50, Fade(BLACK, 0.8f));
             DrawRectangleLines(bottomBoxX, bottomBoxY, 260, 50, WHITE);
-            DrawText(TextFormat("AMMO: %d / %d", 30, 40), bottomBoxX + 15, bottomBoxY + 15, 20, WHITE);
+            health.tick(GetFrameTime());
+            // Reloading Animation
+            if (knight.getIsReloading())
+            {
+                DrawText("RELOADING...", bottomBoxX + 15, bottomBoxY + 15, 20, RED);
+            }
+            else
+            {
+                DrawText(TextFormat("AMMO: %d / %d", knight.getCurrentAmmo(), knight.getMaxAmmo()), bottomBoxX + 15, bottomBoxY + 15, 20, WHITE);
+            }
         }
-        health.tick(GetFrameTime());
+        else if(!knight.getAlive() && currentState != GameState::MENU){
+                DrawText("Our Jahiro Is DEAD!!", 640, 360.f + 15, 50, RED);
+        }
 
         EndDrawing();
     }
