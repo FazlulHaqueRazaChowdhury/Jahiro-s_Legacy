@@ -3,6 +3,7 @@
 
 enum class GameState
 {
+    INTRO,
     MENU,
     MAP_SELECTION,
     SETTINGS,

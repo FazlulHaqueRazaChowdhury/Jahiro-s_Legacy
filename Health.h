@@ -4,14 +4,12 @@
 #include "raylib.h"
 #include <string>
 #include "Character.h"
-#include "Enemy.h"
 
 class Health {
 public:
     Health(Character* character, Vector2 pos, float scale);
     
     Character *jahiro;
-    Enemy *enemy;
     
     Texture2D healthBarTexture = LoadTexture("nature_tileset/04.png");
     Texture2D head = LoadTexture("characters/Head.png");

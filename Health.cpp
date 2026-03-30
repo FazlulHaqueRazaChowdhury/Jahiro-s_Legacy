@@ -1,7 +1,7 @@
 #include "Health.h"
 
 Health::Health(Character* character, Vector2 pos, float scale)
-    : jahiro(character), enemy(enemy), pos(pos), scale(scale) {
+    : jahiro(character),pos(pos), scale(scale) {
 }
 
 void Health::tick(float deltaTime) {
@@ -33,6 +33,6 @@ void Health::tick(float deltaTime) {
     Rectangle dest = {pos.x, pos.y, width * scale, height * scale};
     
     // 3. Draw the health bar and the character head icon
-    DrawTexturePro(healthBarTexture, source, dest, {-150.f, -10.f}, 0.0f, WHITE);
+    DrawTexturePro(healthBarTexture, source, dest, {-95.f, -10.f}, 0.0f, WHITE);
     DrawTextureEx(head, Vector2{0.f, 0.f}, 0.f, 0.3f, WHITE);
 }

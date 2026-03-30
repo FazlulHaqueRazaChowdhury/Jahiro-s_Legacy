@@ -13,7 +13,7 @@ public:
     
     // Core Functions
     void tick(float deltaTime);
-    void takeDamage();
+    void takeDamage(int* kill);
     void respawn(Vector2 pos);
     void undoMovement() { worldPos = worldPosLastFrame; }
     

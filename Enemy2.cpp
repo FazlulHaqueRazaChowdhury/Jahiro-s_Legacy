@@ -159,13 +159,14 @@ void Enemy2::respawn(Vector2 pos)
     setAlive(true);
 }
 
-void Enemy2::takeDamage()
+void Enemy2::takeDamage(int* kill)
 {
     if(deathSound) PlaySound(*deathSound);
     health -= 20.f;
 
     if(health <= 0.f)
     {
+        (*kill)++; 
         setAlive(false);
         enemtexture = deathText; 
         enemmaxFrame = 4.f;  // Set max frames to 4 for death
