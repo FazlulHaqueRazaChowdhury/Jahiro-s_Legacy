@@ -13,11 +13,18 @@
 #include "Leaf.h"
 #include "Grass.h"
 #include "Enemy2.h"
+
+
+ Vector2 spawnPositions[] = {
+    {700.f, 1.f},
+    {1442.f, 500.f},
+    {50.f, 500.f}
+};
+
 static Vector2 GetRandomSpawnPos()
-{
-    float x = (float)GetRandomValue(100, 2000);
-    float y = (float)GetRandomValue(100, 2000);
-    return {x, y};
+{  
+    int index = GetRandomValue(0, 2); 
+    return spawnPositions[index];
 }
 static Vector2 GetRandomLeafPos()
 {
@@ -106,13 +113,13 @@ int main()
         int randomType = i%3; 
         if (randomType == 0)
         {
-            Enemy2 e(GetRandomSpawnPos(), &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
+            Enemy2 e(spawnPositions[i], &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
         }
         else if(randomType == 1){
-            Enemy2 e(GetRandomSpawnPos(), &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
+            Enemy2 e(spawnPositions[i], &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
@@ -120,7 +127,7 @@ int main()
         else
         {
             // Note: Fixed the typo here to pass &eyeDeath at the end!
-            Enemy2 e(GetRandomSpawnPos(), &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
+            Enemy2 e(spawnPositions[i], &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
@@ -134,12 +141,13 @@ int main()
     // game state
     Menu menu(windowWidth, windowHeight);
     GameState currentState = GameState::MENU;
-    Health health(&knight, nullptr, Vector2{0.f, 0.f}, 7.f);
+    Health health(&knight,Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
+    
 
     std::vector<Leaf> leaves;
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < 15; i++)
     {
         // Pass the memory address (&) of the texture
         leaves.emplace_back(GetRandomLeafPos(), &fallSprite,&fallSpriteAkra);
@@ -208,16 +216,8 @@ int main()
 
             currentMap->render(knight, GetFrameTime());
             currentMap->handleCollision(knight);
-
-            if (IsKeyPressed(KEY_E))
-                currentMap = &map1;
-
-            if (IsKeyPressed(KEY_C))
-                currentMap = &map2;
-
             if (IsKeyPressed(KEY_ESCAPE))
                 currentState = GameState::MENU;
-
             HideCursor();
             DrawTexturePro(
                 cursor,
@@ -226,34 +226,18 @@ int main()
                 Vector2{0.f, 0.f},
                 0.f,
                 WHITE);
-
-            if (!knight.getAlive()) // Character is not alive
-            {
-            }
-            else // Character is alive
-            {
-                std::string knightsHealth = "Health: ";
-                knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
-                // DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, RED);
-                
-            }
             
-
+        //Enemy push logic
            for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
-                
-                // Only apply push vector if they are alive (so dead bodies don't slide around!)
                 if (enemy.getAlive())
                 {
                     Vector2 push = enemy.getPushVector(enemies2);
-                    // Shift the enemy's position slightly to keep them separated
                     enemy.setWorldPos(Vector2Add(enemy.getWorldPos(), push));
                 }
             }
-            // ... (Keep your leaves tick logic) ...
-
-            // BULLET COLLISIONS (You can delete the old hardcoded goblin/eye bullet checks)
+        //Bullet & Enemy collision detection system
             for (auto &enemy : enemies2)
             {
                 for (auto &bullet : knight.getBullets())
@@ -268,39 +252,7 @@ int main()
                     }
                 }
             }
-            knight.tick(GetFrameTime());
-            // check map bounds
-            if (
-                knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
-                (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f || knight.getWorldPos().x > 1443.f || (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f))
-            {
-                knight.undoMovement();
-            }
-
-            for (auto &enemy : enemies2)
-            {
-                enemy.tick(GetFrameTime());
-            }
-            float currMap = menu.getSelectedMap();
-            for (auto &leaf : leaves)
-            {
-                leaf.tick(GetFrameTime(),currMap);
-            }
-            for (auto &enemy : enemies2)
-            {
-                for (auto &bullet : knight.getBullets())
-                {
-                    if (enemy.getAlive() &&
-                        CheckCollisionRecs(
-                            bullet.getCollisionRec(knight.getWorldPos()),
-                            enemy.getCollisionRec()))
-                    {
-                        enemy.takeDamage();
-                        bullet.alive = false;
-                    }
-                }
-            }
-
+            //enemy respawning
             for (auto &enemy : enemies2)
             {
                 if (!enemy.getAlive())
@@ -312,6 +264,24 @@ int main()
                         runningTime = 0.f;
                     }
                 }
+            }
+            // check map bounds
+            if (
+                knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
+                (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f || knight.getWorldPos().x > 1443.f || (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f))
+            {
+                knight.undoMovement();
+            }
+            //all tick
+            for (auto &enemy : enemies2)
+            {
+                enemy.tick(GetFrameTime());
+            }
+                knight.tick(GetFrameTime());
+            float currMap = menu.getSelectedMap();
+            for (auto &leaf : leaves)
+            {
+                leaf.tick(GetFrameTime(),currMap);
             }
             health.tick(GetFrameTime());
         }
