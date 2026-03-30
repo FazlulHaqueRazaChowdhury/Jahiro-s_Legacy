@@ -14,16 +14,14 @@
 #include "Grass.h"
 #include "Enemy2.h"
 
-
- Vector2 spawnPositions[] = {
+Vector2 spawnPositions[] = {
     {700.f, 1.f},
     {1442.f, 500.f},
-    {50.f, 500.f}
-};
+    {50.f, 500.f}};
 
 static Vector2 GetRandomSpawnPos()
-{  
-    int index = GetRandomValue(0, 2); 
+{
+    int index = GetRandomValue(0, 2);
     return spawnPositions[index];
 }
 static Vector2 GetRandomLeafPos()
@@ -42,6 +40,12 @@ int main()
     GameState nextState = GameState::MENU;
 
     InitAudioDevice();
+
+    // Intro page things
+    Texture2D introPage = LoadTexture("nature_tileset/Game_intro Page.png");
+    float introAlpha = 1.f;
+    float introTimer = 0.f;
+    float introDuration = 20.f;
 
     // bg music
     Music bgMusic = LoadMusicStream("sounds/Burn The World Waltz .mp3");
@@ -93,7 +97,7 @@ int main()
     Texture2D eyeAttk = LoadTexture("characters/FlyingEye/Attack.png");
     Texture2D eyeDeath = LoadTexture("characters/FlyingEye/Death.png");
     Texture2D eyeHit = LoadTexture("characters/FlyingEye/hit.png");
-    
+
     Texture2D mushRun = LoadTexture("characters/Mushroom/Run.png");
     Texture2D mushAttk = LoadTexture("characters/Mushroom/Attack.png");
     Texture2D mushDeath = LoadTexture("characters/Mushroom/Death.png");
@@ -105,12 +109,12 @@ int main()
     // Texture2D skelHit = LoadTexture("characters/Skeleton/hit.png");
 
     std::vector<Enemy2> enemies2;
-    const int MAX_ENEMIES = 4; 
+    const int MAX_ENEMIES = 4;
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         // 0 = Goblin, 1 = Flying Eye
-        int randomType = i%3; 
+        int randomType = i % 3;
         if (randomType == 0)
         {
             Enemy2 e(spawnPositions[i], &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
@@ -118,7 +122,8 @@ int main()
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
         }
-        else if(randomType == 1){
+        else if (randomType == 1)
+        {
             Enemy2 e(spawnPositions[i], &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
@@ -133,24 +138,23 @@ int main()
             enemies2.push_back(e);
         }
     }
-    
+
     Scenetransition transition(windowWidth, windowHeight);
     transition.setBanner(&loadingBanner);
 
-
     // game state
     Menu menu(windowWidth, windowHeight);
-    GameState currentState = GameState::MENU;
+    GameState currentState = GameState::INTRO;
+    ;
     Health health(&knight, nullptr, Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
-    
 
     std::vector<Leaf> leaves;
     for (int i = 0; i < 25; i++)
     {
         // Pass the memory address (&) of the texture
-        leaves.emplace_back(GetRandomLeafPos(), &fallSprite,&fallSpriteAkra);
+        leaves.emplace_back(GetRandomLeafPos(), &fallSprite, &fallSpriteAkra);
     }
 
     float updateTime = 1.f / 2.f;
@@ -166,8 +170,35 @@ int main()
 
         BeginDrawing();
         ClearBackground(WHITE);
+         
 
-        if (currentState == GameState::MENU ||
+         if (currentState == GameState::INTRO)
+            {
+                DrawTexturePro(
+                    introPage,
+                    Rectangle{0, 0, (float)introPage.width, (float)introPage.height},
+                    Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
+                    Vector2{0, 0}, 0.f, WHITE);
+
+                introTimer += GetFrameTime();
+
+                // fade out
+                if (introTimer >= introDuration)
+                {
+                    introAlpha -= GetFrameTime();
+                    Color fadeColor = {0, 0, 0, (unsigned char)((1.f - introAlpha) * 255)};
+                    DrawRectangle(0, 0, windowWidth, windowHeight, fadeColor);
+
+                    if (introAlpha <= 0.f)
+                        currentState = GameState::MENU;
+                }
+
+                // skip with any key
+                if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    currentState = GameState::MENU;
+            }
+
+       else if (currentState == GameState::MENU ||
             currentState == GameState::MAP_SELECTION ||
             currentState == GameState::SETTINGS)
         { // menuscreen
@@ -183,6 +214,9 @@ int main()
                 currentState = GameState::TRANSITION;
                 transition.start();
             }
+
+           
+
             else if (newState != currentState)
             {
                 currentState = newState;
@@ -197,13 +231,13 @@ int main()
 
             if (nextState == GameState::PLAYING)
             {
-                currentMap->render(knight, 0.0f); 
+                currentMap->render(knight, 0.0f);
             }
             // Update and render transition
             transition.update(GetFrameTime());
             transition.render();
-            DrawText("Let's Jump Into the Battle...", windowWidth / 2 , windowHeight -100, 40, YELLOW);
-              
+            DrawText("Let's Jump Into the Battle...", windowWidth / 2, windowHeight - 100, 40, YELLOW);
+
             // When fade completes -> switch to game
             if (transition.isComplete())
             {
@@ -243,14 +277,12 @@ int main()
                 std::string knightsHealth = "Health: ";
                 knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
                 // DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, RED);
-                
             }
-            
 
-           for (auto &enemy : enemies2)
+            for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
-                
+
                 // Only apply push vector if they are alive (so dead bodies don't slide around!)
                 if (enemy.getAlive())
                 {
@@ -292,7 +324,7 @@ int main()
             float currMap = menu.getSelectedMap();
             for (auto &leaf : leaves)
             {
-                leaf.tick(GetFrameTime(),currMap);
+                leaf.tick(GetFrameTime(), currMap);
             }
             for (auto &enemy : enemies2)
             {
@@ -329,6 +361,7 @@ int main()
     UnloadMusicStream(bgMusic);
     UnloadSound(gunShot);
     UnloadSound(enemyDeath);
+    UnloadTexture(introPage);
     CloseAudioDevice();
     CloseWindow();
 }
