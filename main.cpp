@@ -13,11 +13,18 @@
 #include "Leaf.h"
 #include "Grass.h"
 #include "Enemy2.h"
+
+
+ Vector2 spawnPositions[] = {
+    {700.f, 1.f},
+    {1442.f, 500.f},
+    {50.f, 500.f}
+};
+
 static Vector2 GetRandomSpawnPos()
-{
-    float x = (float)GetRandomValue(100, 2000);
-    float y = (float)GetRandomValue(100, 2000);
-    return {x, y};
+{  
+    int index = GetRandomValue(0, 2); 
+    return spawnPositions[index];
 }
 static Vector2 GetRandomLeafPos()
 {
@@ -106,13 +113,13 @@ int main()
         int randomType = i%3; 
         if (randomType == 0)
         {
-            Enemy2 e(GetRandomSpawnPos(), &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
+            Enemy2 e(spawnPositions[i], &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
         }
         else if(randomType == 1){
-            Enemy2 e(GetRandomSpawnPos(), &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
+            Enemy2 e(spawnPositions[i], &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
@@ -120,7 +127,7 @@ int main()
         else
         {
             // Note: Fixed the typo here to pass &eyeDeath at the end!
-            Enemy2 e(GetRandomSpawnPos(), &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
+            Enemy2 e(spawnPositions[i], &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             enemies2.push_back(e);
@@ -137,6 +144,7 @@ int main()
     Health health(&knight, nullptr, Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
+    
 
     std::vector<Leaf> leaves;
     for (int i = 0; i < 25; i++)
