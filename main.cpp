@@ -31,7 +31,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
@@ -111,7 +111,8 @@ int main()
     const int MAX_ENEMIES = 4;
     int enemiesKilled = 0;
     int lvl = 1;
-
+    int preLvl = 1;
+    int inc = 5;
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         // 0 = Goblin, 1 = Flying Eye
@@ -146,7 +147,7 @@ int main()
     // game state
     Menu menu(windowWidth, windowHeight);
     GameState currentState = GameState::INTRO;
-    Health health(&knight,Vector2{0.f, 0.f}, 7.f);
+    Health health(&knight, Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
 
@@ -170,38 +171,37 @@ int main()
 
         BeginDrawing();
         ClearBackground(WHITE);
-         
 
-         if (currentState == GameState::INTRO)
+        if (currentState == GameState::INTRO)
+        {
+            DrawTexturePro(
+                introPage,
+                Rectangle{0, 0, (float)introPage.width, (float)introPage.height},
+                Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
+                Vector2{0, 0}, 0.f, WHITE);
+
+            introTimer += GetFrameTime();
+
+            // fade out
+            if (introTimer >= introDuration)
             {
-                DrawTexturePro(
-                    introPage,
-                    Rectangle{0, 0, (float)introPage.width, (float)introPage.height},
-                    Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
-                    Vector2{0, 0}, 0.f, WHITE);
+                introAlpha -= GetFrameTime();
+                Color fadeColor = {0, 0, 0, (unsigned char)((1.f - introAlpha) * 255)};
+                DrawRectangle(0, 0, windowWidth, windowHeight, fadeColor);
 
-                introTimer += GetFrameTime();
-
-                // fade out
-                if (introTimer >= introDuration)
-                {
-                    introAlpha -= GetFrameTime();
-                    Color fadeColor = {0, 0, 0, (unsigned char)((1.f - introAlpha) * 255)};
-                    DrawRectangle(0, 0, windowWidth, windowHeight, fadeColor);
-
-                    if (introAlpha <= 0.f)
-                        currentState = GameState::MENU;
-                }
-
-                // skip with any key
-                if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (introAlpha <= 0.f)
                     currentState = GameState::MENU;
             }
 
-       else if (currentState == GameState::MENU ||
-            currentState == GameState::MAP_SELECTION ||
-            currentState == GameState::SETTINGS)
-        { // menuscreen
+            // skip with any key
+            if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                currentState = GameState::MENU;
+        }
+
+        else if (currentState == GameState::MENU ||
+                 currentState == GameState::MAP_SELECTION ||
+                 currentState == GameState::SETTINGS)
+            { // menuscreen
             menu.render(currentState);
             GameState newState = menu.handleInput(currentState);
 
@@ -214,8 +214,6 @@ int main()
                 currentState = GameState::TRANSITION;
                 transition.start();
             }
-
-           
 
             else if (newState != currentState)
             {
@@ -260,9 +258,9 @@ int main()
                 Vector2{0.f, 0.f},
                 0.f,
                 WHITE);
-            
-        //Enemy push logic
-           for (auto &enemy : enemies2)
+
+            // Enemy push logic
+            for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
                 if (enemy.getAlive())
@@ -271,7 +269,7 @@ int main()
                     enemy.setWorldPos(Vector2Add(enemy.getWorldPos(), push));
                 }
             }
-        //Bullet & Enemy collision detection system
+            // Bullet & Enemy collision detection system
             for (auto &enemy : enemies2)
             {
                 for (auto &bullet : knight.getBullets())
@@ -286,19 +284,31 @@ int main()
                     }
                 }
             }
-            //enemy respawning
-            for (auto &enemy : enemies2)
-            {
-                if (!enemy.getAlive())
-                {
-                    runningTime += GetFrameTime();
-                    if (runningTime >= updateTime)
-                    {
-                        enemy.respawn(GetRandomSpawnPos());
-                        runningTime = 0.f;
-                    }
-                }
+            // enemy respawning && game core logics
+            lvl = 1 + (enemiesKilled / inc);
+            if(lvl > preLvl){
+                knight.setHealth(100.f);
+                preLvl = lvl;
             }
+            float currentMaxHealth = 100.f + (lvl * 20.f*0.15);
+            float currentSpeed = 2.0f + (lvl * 0.08f);
+            float respawnDelay = 1.0f - (lvl * 0.1f);
+            if (respawnDelay < 0.2f)
+                respawnDelay = 0.2f;
+runningTime += GetFrameTime(); 
+
+if (runningTime >= respawnDelay)
+{
+    for (auto &enemy : enemies2)
+    {
+        if (!enemy.getAlive())
+        {
+            enemy.respawn(GetRandomSpawnPos(), currentMaxHealth, currentSpeed);
+            runningTime = 0.f; 
+            break;             
+        }
+    }
+}
             // check map bounds
             if (
                 knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
@@ -306,21 +316,21 @@ int main()
             {
                 knight.undoMovement();
             }
-            //all tick
+            // all tick
             for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
             }
-                knight.tick(GetFrameTime());
+            knight.tick(GetFrameTime());
             float currMap = menu.getSelectedMap();
             for (auto &leaf : leaves)
             {
-                leaf.tick(GetFrameTime(),currMap);
+                leaf.tick(GetFrameTime(), currMap);
             }
-            //hud
+            // hud
             int topBoxX = 1290 - 340;
             int topBoxY = 20;
-            DrawRectangle(topBoxX, topBoxY, 320, 80, Fade(BLACK, 0.8f)); 
+            DrawRectangle(topBoxX, topBoxY, 320, 80, Fade(BLACK, 0.8f));
             DrawRectangleLines(topBoxX, topBoxY, 320, 80, WHITE);
             DrawText(TextFormat("Shony Eliminated: %d", enemiesKilled), topBoxX + 15, topBoxY + 15, 20, WHITE);
             DrawText(TextFormat("Level: %d", lvl), topBoxX + 15, topBoxY + 45, 20, WHITE);

@@ -171,7 +171,7 @@ void Character::tick(float deltaTime)
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
     // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
 
-   
+    
 
     //Muzzle postion 
     // Hand position in screen space
@@ -191,8 +191,8 @@ void Character::tick(float deltaTime)
         //  muzzle position to world space for bullet spawning
 
     // DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
-    std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)muzzleScreenPos.x) + ", " + std::to_string((int)muzzleScreenPos.y);   
-    // DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
+    std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)health) + ", " + std::to_string((int)muzzleScreenPos.y);   
+    DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
     // DEBUG 
     std::string debugText = "Rotation: " + std::to_string(headRotate);
     // DrawText(debugText.c_str(), 155, 280, 20, GREEN);
@@ -236,4 +236,7 @@ Rectangle Character::getCharCollisionRec()
         width * scale,
         height * scale
     };
+}
+void Character::setHealth(float heal) {
+    health = heal;
 }
