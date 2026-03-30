@@ -1,6 +1,6 @@
 #include "Health.h"
 
-Health::Health(Character* character, Enemy* enemy, Vector2 pos, float scale)
+Health::Health(Character* character, Vector2 pos, float scale)
     : jahiro(character), enemy(enemy), pos(pos), scale(scale) {
 }
 

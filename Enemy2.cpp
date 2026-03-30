@@ -13,7 +13,7 @@ Enemy2::Enemy2(Vector2 pos, Texture2D *run_texture, Texture2D *attack_texture, T
     textureWidth = enemtexture.width / enemmaxFrame;
     textureHeight = enemtexture.height;
     
-    speed = 1.5f; 
+    speed = 2.5f; 
     this->health = health;
     setScale(scale);
     setAlive(true);
@@ -129,22 +129,22 @@ void Enemy2::tick(float deltaTime)
     textureWidth = enemtexture.width / enemmaxFrame;
     Rectangle source{frame * textureWidth, 0.f, rightLeft * textureWidth, textureHeight};
     Rectangle dest{getScreenPos().x, getScreenPos().y, scale * textureWidth, scale * textureHeight};
-    DrawTexturePro(enemtexture, source, dest, Vector2{0.f, 0.f}, 0.f, WHITE);
     // --- DRAW SHADOW FIRST ---
     // 1. Made the scale slightly smaller so it doesn't look like a giant hole
-    float shadowScale = scale * 1.0f; 
+    float shadowScale = scale * 1.2f; 
     
     // 2. Center X stays the same
     float shadowX = getScreenPos().x + ((scale * textureWidth) / 2.0f) - ((shadow.width * shadowScale) / 2.0f);
     
     // 3. Center Y: We now subtract the ENTIRE shadow height to pull it up, 
     // then add a tiny offset to fine-tune it perfectly under their feet.
-    float shadowY = getScreenPos().y + (scale * textureHeight) - (shadow.height * shadowScale) + (20.f * scale); 
-
+    float shadowY = getScreenPos().y + (scale * textureHeight) - (shadow.height * shadowScale) - (25.f * scale); 
+    
     if (getAlive()) 
     {
         DrawTextureEx(shadow, Vector2{shadowX, shadowY}, 0.f, shadowScale, Color{255, 255, 255, 180});
     }
+    DrawTexturePro(enemtexture, source, dest, Vector2{0.f, 0.f}, 0.f, WHITE);
     // ---------------------------------------------------------
     // Optional Debug Overlays (Remove or comment out when done testing)
     // ---------------------------------------------------------

@@ -27,7 +27,7 @@ private:
     int windowHeight{};
     Rectangle weaponCollisionRec{};
     Vector2 ssPos{};
-    float health{100.f};
+    float health{10000.f};
      std::vector<Bullet> bullets;
      Sound* shootSound{nullptr};
 
