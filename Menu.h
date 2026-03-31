@@ -15,7 +15,9 @@ public:
     int getSelectedMap() const { return selectedMap; }
     float getMusicVolume() const { return musicVolume; }
     float getSfxVolume() const { return sfxVolume; }
-     void setHighScore(int score) { highScore = score; }
+    void setHighScore(int score) { highScore = score; }
+     void setCurrentScore(int score) { currentScore = score; }
+    
 private:
     float windowWidth;
     float windowHeight;
@@ -42,6 +44,9 @@ private:
     Rectangle sfxDownButton;
     Rectangle backFromSettingsButton;
 
+    // stats button
+    Rectangle statsButton;
+
     // State
     int selectedMap;
     float musicVolume;
@@ -56,12 +61,14 @@ private:
     void renderMainMenu();
     void renderMapSelection();
     void renderSettings();
-
+    void renderStats();
     // Icons
     Texture2D playIcon;
     Texture2D settingsIcon;
     Texture2D quitIcon;
+    Texture2D statIcon;
     int highScore{};
+    int currentScore{0};
    
 };
 
