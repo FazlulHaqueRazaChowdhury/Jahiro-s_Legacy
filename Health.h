@@ -18,8 +18,8 @@ public:
     float height = healthBarTexture.height / 14.f; 
     
 
-    float currCol{1.f}; // Start at full health (column 1)
-    float currRow{0.f}; // Use the first row style
+    float currCol{1.f}; 
+    float currRow{0.f};
     Vector2 pos{10.f, 10.f};
     float scale{1.f};
     

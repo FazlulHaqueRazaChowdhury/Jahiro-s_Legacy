@@ -50,8 +50,7 @@ void Character::tick(float deltaTime)
         getScreenPos(),
         {(width * scale) / 2.f, (height * scale) / 2.f}
     );
-        //Shadows
-
+    //Shadows
     DrawTextureEx(shadow,Vector2{playerScreenCenter.x-(float)shadow.width,playerScreenCenter.y-(float)shadow.height},0.f,2.f, WHITE);
     BaseCharacter::tick(deltaTime);
 
@@ -61,9 +60,8 @@ void Character::tick(float deltaTime)
         playerScreenCenter.y-20.f
     }, deltaTime,rightLeft);
     }
-    // FROM THIS PART WAS DONE BY AZWAD HUSSAIN SHADMAN shooting mechanism
-  
 
+    // FROM THIS PART WAS DONE BY AZWAD HUSSAIN SHADMAN shooting mechanism
     // AIM DIRECTION 
     Vector2 mouseScreen = GetMousePosition();
     Vector2 shootDir = Vector2Subtract(mouseScreen,getScreenPos());
@@ -76,8 +74,6 @@ void Character::tick(float deltaTime)
         sinf(rotation * DEG2RAD)
     };
     
-    std::string rotationText = std::to_string(rotation);
-    // DrawText(rotationText.c_str(), 10.f, 80.f, 20, RED);
 
     //Flip
     float flip{1.f};
@@ -94,7 +90,6 @@ void Character::tick(float deltaTime)
 
     // draw the head
     float headScale = 0.04f;
-    
     Rectangle source2{
         (float)(1.f * head.width),
         (float)(1.f * head.height),
@@ -160,16 +155,11 @@ void Character::tick(float deltaTime)
         weapon.width * gunScale,
         weapon.height * gunScale
     };
-    //Drawing the text for dest
-    std::string destText = "Gun Dest: " + std::to_string((int)dest.x) + ", " + std::to_string((int)dest.y);
-    // DrawText(destText.c_str(), 10.f, 110.f, 20, RED);
-    //Converting gun screen position to world position for bullet spawning
     Vector2 origin{
         0.f, // closer to grip
         (weapon.height * gunScale) / 2.f
     };
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
-    // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
 
     
 
@@ -186,16 +176,6 @@ void Character::tick(float deltaTime)
         handScreenPos,
         Vector2Scale(gunDir, handToMuzzle)
     );
-        // muzzleScreenPos.y -= (15.f); // adjust for better alignment
-        // muzzleScreenPos.x += 5.f * flip; // adjust for better alignment
-        //  muzzle position to world space for bullet spawning
-
-    // DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
-    // std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)health) + ", " + std::to_string((int)muzzleScreenPos.y);   
-    // DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
-    // DEBUG 
-    std::string debugText = "Rotation: " + std::to_string(headRotate);
-    // DrawText(debugText.c_str(), 155, 280, 20, GREEN);
 
     // Shoot & Reload
     if (isReloading)

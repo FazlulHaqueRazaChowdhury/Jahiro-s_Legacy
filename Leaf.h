@@ -10,19 +10,17 @@ public:
     void tick(float deltaTime,float map);
 
 private:
+    Vector2 position;
     Texture2D texture;
     Texture2D texture1st;
     Texture2D texture2nd;
-    Vector2 position;
     Vector2 velocity;
-    
     float frames{0.f};
     float maxFrames{4.f};
     float width;
     float height;
     float updateTime{1.f / 12.f}; 
     float runningTime{0.f};
-    
     float angle{0.f};
     float rotationSpeed;
     
@@ -30,7 +28,6 @@ private:
     float swaySpeed;
     float swayAmount;
     
-    // NEW: Give each leaf its own scale for fake 3D depth
     float scale; 
 };
 

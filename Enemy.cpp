@@ -48,18 +48,10 @@ void Enemy::tick(float deltaTime)
     width = texture.width / maxFrames;
     Vector2 shadowPos = Vector2{getScreenPos().x+width*getScale()*0.5f-shadow.width,getScreenPos().y+height*getScale()-shadow.height-20.f};
     DrawTextureEx(shadow,shadowPos,0.f,2.f, WHITE);
-    //drawing rectangle lines for shadows
-    // DrawRectangleLines(shadowPos.x-shadow.width*0.5f,shadowPos.y-shadow.height*0.5f,shadow.width,shadow.height, RED);
-    //Drawing a cirle at the feet of the enemy for debugging
     dust.Render(Vector2{
         getScreenPos().x+width*getScale()*0.5f,getScreenPos().y+height*getScale()
     }, deltaTime,rightLeft);
-    //Drawing Dust particles at the feet of the enemy for debugging
-    // DrawRectangleLines(getScreenPos().x,getScreenPos().y,width*getScale(),height*getScale(), RED);
-    // DrawText(TextFormat("Health: %.2f", health), getScreenPos().x, getScreenPos().y - 20.f, 20, RED);
-    // DrawText(TextFormat("Scale: %.2f", getScale()), getScreenPos().x, getScreenPos().y - 40.f, 20, RED);
     BaseCharacter::tick(deltaTime);
-    // DrawCircleV(Vector2{getScreenPos().x+width*getScale()*0.5f,getScreenPos().y+height*getScale()}, 5.f, BLUE);
     }
 
 

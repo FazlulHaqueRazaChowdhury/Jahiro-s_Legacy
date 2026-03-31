@@ -8,8 +8,11 @@
 class Character : public BaseCharacter
 {
     public:
-    float health{100.f};
     Character(int winWidth, int winHeight, Texture2D *bulletTexture);
+    int windowWidth{};
+    int windowHeight{};
+    Texture2D* BulletTex;
+    float health{100.f};
     virtual void tick(float deltaTime) override;
     virtual Vector2 getScreenPos() override;
     Rectangle getWeaponCollisionRec() { return weaponCollisionRec; }
@@ -22,7 +25,6 @@ class Character : public BaseCharacter
     Rectangle getCharCollisionRec();
     float mainCharRL{1.f};
     void setShootSound(Sound* sound) { shootSound = sound; }
-    Texture2D *BulletTex;
     void setHealth(float heal);
     //bullet
     int currentAmmo{50};
@@ -38,8 +40,6 @@ class Character : public BaseCharacter
  
 
 private:
-    int windowWidth{};
-    int windowHeight{};
     Rectangle weaponCollisionRec{};
     Vector2 ssPos{};
      std::vector<Bullet> bullets;

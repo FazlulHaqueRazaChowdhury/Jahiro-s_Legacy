@@ -10,7 +10,6 @@
 #include <vector>
 #include "Health.h"
 #include "Leaf.h"
-#include "Grass.h"
 #include "Enemy2.h"
 #include <fstream>
 
@@ -51,7 +50,7 @@ int main()
     Texture2D gameOverBg = LoadTexture("nature_tileset/Game_ending_bg.png");
 
     // bg music
-    Music bgMusic = LoadMusicStream("sounds/Burn The World Waltz .mp3");
+    Music bgMusic = LoadMusicStream("sounds/bg.mp3");
     bgMusic.looping = true;
     SetMusicVolume(bgMusic, 0.5f);
     PlayMusicStream(bgMusic);
@@ -65,7 +64,6 @@ int main()
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map4.png");
     Texture2D map2Tex = LoadTexture("nature_tileset/map2.png");
-    Texture2D menuBackground = LoadTexture("nature_tileset/landing-2_bg.png");
     Texture2D loadingBanner = LoadTexture("nature_tileset/landing-2_bg.png");
 
     Map map1(map1Tex, 3.f);
@@ -137,7 +135,7 @@ int main()
         int randomType = i % 3;
         if (randomType == 0)
         {
-            Enemy2 e(spawnPositions[i], &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
+            Enemy2 e(GetRandomSpawnPos(), &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             e.setHitSound(bulletHitSound);
@@ -145,7 +143,7 @@ int main()
         }
         else if (randomType == 1)
         {
-            Enemy2 e(spawnPositions[i], &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
+            Enemy2 e(GetRandomSpawnPos(), &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             e.setHitSound(bulletHitSound);
@@ -153,8 +151,8 @@ int main()
         }
         else
         {
-            // Note: Fixed the typo here to pass &eyeDeath at the end!
-            Enemy2 e(spawnPositions[i], &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
+
+            Enemy2 e(GetRandomSpawnPos(), &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
             e.setHitSound(bulletHitSound);
@@ -176,11 +174,9 @@ int main()
     std::vector<Leaf> leaves;
     for (int i = 0; i < 15; i++)
     {
-        // Pass the memory address (&) of the texture
         leaves.emplace_back(GetRandomLeafPos(), &fallSprite, &fallSpriteAkra);
     }
 
-    float updateTime = 1.f / 2.f;
     float runningTime{};
 
     while (!WindowShouldClose() && currentState != GameState::QUIT)

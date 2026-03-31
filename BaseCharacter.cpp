@@ -15,7 +15,6 @@ void BaseCharacter::undoMovement()
 
 Rectangle BaseCharacter::getCollisionRec()
 {
-    //   DrawRectangleLines(getScreenPos().x, getScreenPos().y, width * scale, height * scale, RED);
     return Rectangle{
         getScreenPos().x,
         getScreenPos().y,
@@ -31,8 +30,6 @@ void BaseCharacter::tick(float deltaTime)
     Rectangle dest{getScreenPos().x , getScreenPos().y , scale * width, scale * height};
     float backward = 1.f;
     // update animation frame
-// Remove the instant frame skip
-    // if(!getAlive()) frame = maxFrames-1.f; 
     
     runningTime += deltaTime;
     if (runningTime >= updateTime)
@@ -58,19 +55,15 @@ void BaseCharacter::tick(float deltaTime)
         }
     }
 
-        Vector2 mousePos = GetMousePosition();
-        Vector2 relativePos = {600,360};
         if(velocity.x < 0.f) backward = -1.f;
         else if(velocity.x > 0.f) backward = 1.f;
     if (Vector2Length(velocity) != 0.0)
     {
-        // set worldPos = worldPos + velocity
         texture = run;
         updateTime = 1.f/12.f;
         maxFrames = 8.f;
         worldPos = Vector2Add(worldPos, Vector2Scale(Vector2Normalize(velocity), speed));
         runFlag = true;
-        // velocity.x < 0.f ? rightLeft = -1.f : rightLeft = 1.f;    
 
     }
     else

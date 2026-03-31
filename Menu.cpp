@@ -181,7 +181,6 @@ void Menu::drawButtonWithIcon(Rectangle button, const char *text, Texture2D icon
         WHITE);
 
     // Draw text next to icon
-    Vector2 textSize = MeasureTextEx(customFont, text, fontSize, 2);
     float textX = iconX + iconSize + 15; // Icon + spacing
     float textY = button.y + (button.height - fontSize) / 2;
 
@@ -256,7 +255,6 @@ void Menu::renderMapSelection()
 {
     // Title
     const char *title = "SELECT MAP";
-    int titleWidth = MeasureText(title, 70);
     Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
     DrawTextEx(
         customFont,
