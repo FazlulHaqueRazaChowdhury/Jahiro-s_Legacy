@@ -13,8 +13,8 @@ public:
     
     // Core Functions
     void tick(float deltaTime);
-    void takeDamage();
-    void respawn(Vector2 pos);
+    void takeDamage(int* kill);
+    void respawn(Vector2 pos, float newMaxHealth, float newSpeed);
     void undoMovement() { worldPos = worldPosLastFrame; }
     
     // Getters & Setters
@@ -41,7 +41,7 @@ public:
     Sound* deathSound{nullptr};
 
     // Public Stats
-    float health{100.f};
+    float health{50.f};
     float damagePerSec{10.f};
     float radius{5.f};
     float enemmaxFrame{8.f};
@@ -60,7 +60,7 @@ private:
     // Animation Variables
     float frame{0.f};
     float runningTime{0.f};
-    float updateTime{1.f / 12.f};
+    float updateTime{1.f / 6.f};
     float rightLeft{1.f};
     bool alive{true};
 };

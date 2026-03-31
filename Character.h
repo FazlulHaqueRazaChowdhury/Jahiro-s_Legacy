@@ -7,7 +7,8 @@
 
 class Character : public BaseCharacter
 {
-public:
+    public:
+    float health{100.f};
     Character(int winWidth, int winHeight, Texture2D *bulletTexture);
     virtual void tick(float deltaTime) override;
     virtual Vector2 getScreenPos() override;
@@ -22,12 +23,24 @@ public:
     float mainCharRL{1.f};
     void setShootSound(Sound* sound) { shootSound = sound; }
     Texture2D *BulletTex;
+    void setHealth(float heal);
+    //bullet
+    int currentAmmo{50};
+    int maxAmmo{50};
+    bool isReloading{false};
+    float reloadTime{1.5f}; 
+    float reloadTimer{0.f};
+
+    int getCurrentAmmo() const { return currentAmmo; }
+    int getMaxAmmo() const { return maxAmmo; }
+    bool getIsReloading() const { return isReloading; }
+ 
+
 private:
     int windowWidth{};
     int windowHeight{};
     Rectangle weaponCollisionRec{};
     Vector2 ssPos{};
-    float health{10000.f};
      std::vector<Bullet> bullets;
      Sound* shootSound{nullptr};
 

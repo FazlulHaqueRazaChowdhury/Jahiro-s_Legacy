@@ -375,6 +375,7 @@ void Menu::renderSettings()
     
     drawButtonWithSize(sfxUpButton, "+", DARKBLUE, BLUE, 40);
     
+    DrawText(TextFormat("High Score: %d", highScore), windowWidth/2 - 80, windowHeight/2 + 100, 28, GOLD);
     // Back button
    drawButtonWithSize(backFromSettingsButton, "BACK", DARKGRAY, GRAY, 35);
 

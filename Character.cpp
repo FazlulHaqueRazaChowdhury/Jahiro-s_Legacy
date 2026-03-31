@@ -171,7 +171,7 @@ void Character::tick(float deltaTime)
     DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
     // DrawRectangleLines(dest.x, dest.y, dest.width*flip, dest.height, RED); // debug gun dest
 
-   
+    
 
     //Muzzle postion 
     // Hand position in screen space
@@ -191,20 +191,54 @@ void Character::tick(float deltaTime)
         //  muzzle position to world space for bullet spawning
 
     // DrawCircleV(muzzleScreenPos, 5.f, RED); // debug player center
-    std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)muzzleScreenPos.x) + ", " + std::to_string((int)muzzleScreenPos.y);   
+    // std::string muzzleText = "Muzzle Screen Pos: " + std::to_string((int)health) + ", " + std::to_string((int)muzzleScreenPos.y);   
     // DrawText(muzzleText.c_str(), 100.f, 640.f, 20, RED);
     // DEBUG 
     std::string debugText = "Rotation: " + std::to_string(headRotate);
     // DrawText(debugText.c_str(), 155, 280, 20, GREEN);
 
-    // Shoot
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B))
+    // Shoot & Reload
+    if (isReloading)
     {
-        bullets.emplace_back(BulletTex,muzzleScreenPos, Vector2Subtract(mouseScreen, muzzleScreenPos));
-        if (shootSound) PlaySound(*shootSound); 
-
-        // recoil section 
-        recoilOffset=recoilStrength;
+        int missingBullets = maxAmmo - currentAmmo;   
+        if (missingBullets <= 15) 
+        {
+            reloadTime = 0.5f; 
+        } 
+        else if (missingBullets <= 35) 
+        {
+            reloadTime = 1.2f; 
+        } 
+        else 
+        {
+            reloadTime = 2.0f; 
+        }
+        reloadTimer += deltaTime;
+        if (reloadTimer >= reloadTime)
+        {
+            currentAmmo = maxAmmo;
+            isReloading = false;
+            reloadTimer = 0.f;
+        }
+    }
+    if (IsKeyPressed(KEY_R) && currentAmmo < maxAmmo && !isReloading)
+    {
+        isReloading = true;
+    }
+    // Shooting Logic
+    if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B)) && !isReloading)
+    {
+        if (currentAmmo > 0) 
+        {
+            bullets.emplace_back(BulletTex, muzzleScreenPos, Vector2Subtract(mouseScreen, muzzleScreenPos));
+            if (shootSound) PlaySound(*shootSound); 
+            recoilOffset = recoilStrength;
+            currentAmmo--; 
+        }
+        else 
+        {
+            isReloading = true;
+        }
     }
     // Bullets
     for (int i = 0; i < bullets.size(); i++)
@@ -236,4 +270,7 @@ Rectangle Character::getCharCollisionRec()
         width * scale,
         height * scale
     };
+}
+void Character::setHealth(float heal) {
+    health = heal;
 }

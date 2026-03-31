@@ -2,7 +2,6 @@
 #include "raymath.h"
 #include "Character.h"
 #include "Prop.h"
-#include "Enemy.h"
 #include "Map.h"
 #include "Menu.h"
 #include "GameState.h"
@@ -32,7 +31,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    //  SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
@@ -45,7 +44,10 @@ int main()
     Texture2D introPage = LoadTexture("nature_tileset/Game_intro Page.png");
     float introAlpha = 1.f;
     float introTimer = 0.f;
-    float introDuration = 20.f;
+    float introDuration = 5.f;
+
+    // game ending bg
+    Texture2D gameOverBg = LoadTexture("nature_tileset/Game_ending_bg.png");
 
     // bg music
     Music bgMusic = LoadMusicStream("sounds/Burn The World Waltz .mp3");
@@ -110,6 +112,12 @@ int main()
 
     std::vector<Enemy2> enemies2;
     const int MAX_ENEMIES = 4;
+    int enemiesKilled = 0;
+    int lvl = 1;
+    int highScore = 0;
+    int currentScore = 0;
+    int preLvl = 1;
+    int inc = 5;
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
@@ -144,14 +152,14 @@ int main()
 
     // game state
     Menu menu(windowWidth, windowHeight);
+    menu.setHighScore(highScore);
     GameState currentState = GameState::INTRO;
-    ;
-    Health health(&knight, nullptr, Vector2{0.f, 0.f}, 7.f);
+    Health health(&knight, Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
 
     std::vector<Leaf> leaves;
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < 15; i++)
     {
         // Pass the memory address (&) of the texture
         leaves.emplace_back(GetRandomLeafPos(), &fallSprite, &fallSpriteAkra);
@@ -170,37 +178,36 @@ int main()
 
         BeginDrawing();
         ClearBackground(WHITE);
-         
 
-         if (currentState == GameState::INTRO)
+        if (currentState == GameState::INTRO)
+        {
+            DrawTexturePro(
+                introPage,
+                Rectangle{0, 0, (float)introPage.width, (float)introPage.height},
+                Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
+                Vector2{0, 0}, 0.f, WHITE);
+
+            introTimer += GetFrameTime();
+
+            // fade out
+            if (introTimer >= introDuration)
             {
-                DrawTexturePro(
-                    introPage,
-                    Rectangle{0, 0, (float)introPage.width, (float)introPage.height},
-                    Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
-                    Vector2{0, 0}, 0.f, WHITE);
+                introAlpha -= GetFrameTime();
+                Color fadeColor = {0, 0, 0, (unsigned char)((1.f - introAlpha) * 255)};
+                DrawRectangle(0, 0, windowWidth, windowHeight, fadeColor);
 
-                introTimer += GetFrameTime();
-
-                // fade out
-                if (introTimer >= introDuration)
-                {
-                    introAlpha -= GetFrameTime();
-                    Color fadeColor = {0, 0, 0, (unsigned char)((1.f - introAlpha) * 255)};
-                    DrawRectangle(0, 0, windowWidth, windowHeight, fadeColor);
-
-                    if (introAlpha <= 0.f)
-                        currentState = GameState::MENU;
-                }
-
-                // skip with any key
-                if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (introAlpha <= 0.f)
                     currentState = GameState::MENU;
             }
 
-       else if (currentState == GameState::MENU ||
-            currentState == GameState::MAP_SELECTION ||
-            currentState == GameState::SETTINGS)
+            // skip with any key
+            if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                currentState = GameState::MENU;
+        }
+
+        else if (currentState == GameState::MENU ||
+                 currentState == GameState::MAP_SELECTION ||
+                 currentState == GameState::SETTINGS)
         { // menuscreen
             menu.render(currentState);
             GameState newState = menu.handleInput(currentState);
@@ -214,8 +221,6 @@ int main()
                 currentState = GameState::TRANSITION;
                 transition.start();
             }
-
-           
 
             else if (newState != currentState)
             {
@@ -245,21 +250,13 @@ int main()
             }
         }
 
-        else if (currentState == GameState::PLAYING)
+        else if (currentState == GameState::PLAYING && knight.getAlive())
         {
-
-            currentMap->render(knight, GetFrameTime());
-            currentMap->handleCollision(knight);
-
-            if (IsKeyPressed(KEY_E))
-                currentMap = &map1;
-
-            if (IsKeyPressed(KEY_C))
-                currentMap = &map2;
-
             if (IsKeyPressed(KEY_ESCAPE))
                 currentState = GameState::MENU;
 
+            currentMap->render(knight, GetFrameTime());
+            currentMap->handleCollision(knight);
             HideCursor();
             DrawTexturePro(
                 cursor,
@@ -269,31 +266,17 @@ int main()
                 0.f,
                 WHITE);
 
-            if (!knight.getAlive()) // Character is not alive
-            {
-            }
-            else // Character is alive
-            {
-                std::string knightsHealth = "Health: ";
-                knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
-                // DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, RED);
-            }
-
+            // Enemy push logic
             for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
-
-                // Only apply push vector if they are alive (so dead bodies don't slide around!)
                 if (enemy.getAlive())
                 {
                     Vector2 push = enemy.getPushVector(enemies2);
-                    // Shift the enemy's position slightly to keep them separated
                     enemy.setWorldPos(Vector2Add(enemy.getWorldPos(), push));
                 }
             }
-            // ... (Keep your leaves tick logic) ...
-
-            // BULLET COLLISIONS (You can delete the old hardcoded goblin/eye bullet checks)
+            // Bullet & Enemy collision detection system
             for (auto &enemy : enemies2)
             {
                 for (auto &bullet : knight.getBullets())
@@ -303,58 +286,157 @@ int main()
                             bullet.getCollisionRec(knight.getWorldPos()),
                             enemy.getCollisionRec()))
                     {
-                        enemy.takeDamage();
+                        enemy.takeDamage(&enemiesKilled);
                         bullet.alive = false;
                     }
                 }
             }
-            knight.tick(GetFrameTime());
+            // enemy respawning && game core logics
+            lvl = 1 + (enemiesKilled / inc);
+            currentScore = enemiesKilled * lvl;
+            if (currentScore > highScore)
+                highScore = currentScore;
+            if (lvl > preLvl)
+            {
+                knight.setHealth(100.f);
+                preLvl = lvl;
+            }
+            float currentMaxHealth = 50 + (lvl * 20.f * 0.5);
+            float currentSpeed = 2.0f + (lvl * 0.08f);
+            float respawnDelay = 1.0f - (lvl * 0.1f);
+            if (respawnDelay < 0.2f)
+                respawnDelay = 0.2f;
+            runningTime += GetFrameTime();
+
+            if (runningTime >= respawnDelay)
+            {
+                for (auto &enemy : enemies2)
+                {
+                    if (!enemy.getAlive())
+                    {
+                        enemy.respawn(GetRandomSpawnPos(), currentMaxHealth, currentSpeed);
+                        runningTime = 0.f;
+                        break;
+                    }
+                }
+            }
             // check map bounds
             if (
-                knight.getWorldPos().y <= 0.f || knight.getWorldPos().x <= 49.f ||
+                knight.getWorldPos().y <= 10.f || knight.getWorldPos().x <= 49.f ||
                 (knight.getWorldPos().x <= 466.f && knight.getWorldPos().y >= 654.f) || knight.getWorldPos().y >= 822.f || knight.getWorldPos().x > 1443.f || (knight.getWorldPos().x >= 1210.f && knight.getWorldPos().y >= 636.f))
             {
                 knight.undoMovement();
             }
-
+            // all tick
             for (auto &enemy : enemies2)
             {
                 enemy.tick(GetFrameTime());
             }
+            knight.tick(GetFrameTime());
             float currMap = menu.getSelectedMap();
             for (auto &leaf : leaves)
             {
                 leaf.tick(GetFrameTime(), currMap);
             }
-            for (auto &enemy : enemies2)
-            {
-                for (auto &bullet : knight.getBullets())
-                {
-                    if (enemy.getAlive() &&
-                        CheckCollisionRecs(
-                            bullet.getCollisionRec(knight.getWorldPos()),
-                            enemy.getCollisionRec()))
-                    {
-                        enemy.takeDamage();
-                        bullet.alive = false;
-                    }
-                }
-            }
-
-            for (auto &enemy : enemies2)
-            {
-                if (!enemy.getAlive())
-                {
-                    runningTime += GetFrameTime();
-                    if (runningTime >= updateTime)
-                    {
-                        enemy.respawn(GetRandomSpawnPos());
-                        runningTime = 0.f;
-                    }
-                }
-            }
+            // hud
+            int topBoxX = 1290 - 340;
+            int topBoxY = 20;
+            DrawRectangle(topBoxX, topBoxY, 320, 80, Fade(BLACK, 0.8f));
+            DrawRectangleLines(topBoxX, topBoxY, 320, 80, WHITE);
+            DrawText(TextFormat("JAHIRO's IJJOT: %d", enemiesKilled * lvl), topBoxX + 15, topBoxY + 15, 20, WHITE);
+            DrawText(TextFormat("Level: %d", lvl), topBoxX + 15, topBoxY + 45, 20, WHITE);
+            int bottomBoxX = 1280 - 280;
+            int bottomBoxY = 720 - 70;
+            DrawRectangle(bottomBoxX, bottomBoxY, 260, 50, Fade(BLACK, 0.8f));
+            DrawRectangleLines(bottomBoxX, bottomBoxY, 260, 50, WHITE);
             health.tick(GetFrameTime());
+            // Reloading Animation
+            if (knight.getIsReloading())
+            {
+                DrawText("RELOADING...", bottomBoxX + 15, bottomBoxY + 15, 20, RED);
+            }
+            else
+            {
+                DrawText(TextFormat("AMMO: %d / %d", knight.getCurrentAmmo(), knight.getMaxAmmo()), bottomBoxX + 15, bottomBoxY + 15, 20, WHITE);
+            }
         }
+        else if (!knight.getAlive() && currentState == GameState::PLAYING)
+        {
+            currentState = GameState::GAME_OVER;
+        }
+
+       else if(currentState == GameState::GAME_OVER)
+{
+    // Background
+    DrawTexturePro(gameOverBg,
+        Rectangle{0,0,(float)gameOverBg.width,(float)gameOverBg.height},
+        Rectangle{0,0,(float)windowWidth,(float)windowHeight},
+        Vector2{0,0}, 0.f, WHITE);
+    DrawRectangle(0, 0, windowWidth, windowHeight, Fade(BLACK, 0.5f));
+
+    // Modal box
+    int modalW = 560, modalH = 400;
+    int modalX = windowWidth/2 - modalW/2;
+    int modalY = windowHeight/2 - modalH/2;
+    DrawRectangle(modalX, modalY, modalW, modalH, Color{20,20,20,220});
+    DrawRectangleLinesEx(Rectangle{(float)modalX,(float)modalY,(float)modalW,(float)modalH}, 3, RED);
+
+    // Title
+    DrawText("JAHIRO IS DEAD!", modalX + 110, modalY + 30, 35, RED);
+
+    // Score display
+    DrawText(TextFormat("Score: %d", currentScore), modalX + 190, modalY + 100, 28, WHITE);
+    DrawText(TextFormat("High Score: %d", highScore), modalX + 160, modalY + 140, 28, GOLD);
+
+    // REPLAY button
+    Rectangle replayBtn = {(float)modalX + 30, (float)modalY + 300, 150, 55};
+    bool replayHovered = CheckCollisionPointRec(GetMousePosition(), replayBtn);
+    DrawRectangleRec(replayBtn, replayHovered ? GREEN : DARKGREEN);
+    DrawText("REPLAY", modalX + 50, modalY + 318, 22, WHITE);
+
+    // MENU button
+    Rectangle menuBtn = {(float)modalX + 205, (float)modalY + 300, 150, 55};
+    bool menuHovered = CheckCollisionPointRec(GetMousePosition(), menuBtn);
+    DrawRectangleRec(menuBtn, menuHovered ? BLUE : DARKBLUE);
+    DrawText("MENU", modalX + 238, modalY + 318, 22, WHITE);
+
+    // QUIT button
+    Rectangle quitBtn = {(float)modalX + 380, (float)modalY + 300, 150, 55};
+    bool quitHovered = CheckCollisionPointRec(GetMousePosition(), quitBtn);
+    DrawRectangleRec(quitBtn, quitHovered ? Color{220,50,50,255} : Color{150,20,20,255});
+    DrawText("QUIT", modalX + 418, modalY + 318, 22, WHITE);
+
+    ShowCursor();
+
+    if(replayHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        knight.setHealth(100.f);
+        knight.setAlive(true);
+        enemiesKilled = 0;
+        currentScore = 0;
+        lvl = 1;
+        preLvl = 1;
+        runningTime = 0.f;
+        for(auto& enemy : enemies2)
+            enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
+        currentState = GameState::PLAYING;
+    }
+    if(menuHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        knight.setHealth(100.f);
+        knight.setAlive(true);
+        enemiesKilled = 0;
+        currentScore = 0;
+        lvl = 1;
+        preLvl = 1;
+        runningTime = 0.f;
+        for(auto& enemy : enemies2)
+            enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
+        currentState = GameState::MENU;
+    }
+    if(quitHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        currentState = GameState::QUIT;
+}
 
         EndDrawing();
     }
@@ -362,6 +444,7 @@ int main()
     UnloadSound(gunShot);
     UnloadSound(enemyDeath);
     UnloadTexture(introPage);
+    UnloadTexture(gameOverBg);
     CloseAudioDevice();
     CloseWindow();
 }

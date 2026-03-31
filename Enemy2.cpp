@@ -13,7 +13,7 @@ Enemy2::Enemy2(Vector2 pos, Texture2D *run_texture, Texture2D *attack_texture, T
     textureWidth = enemtexture.width / enemmaxFrame;
     textureHeight = enemtexture.height;
     
-    speed = 1.5f; 
+    speed = 2.5f; 
     this->health = health;
     setScale(scale);
     setAlive(true);
@@ -56,23 +56,15 @@ Rectangle Enemy2::getCollisionRec()
 void Enemy2::tick(float deltaTime)
 {
     worldPosLastFrame = worldPos;
-    //Rectangle Box
     Rectangle myBox = getCollisionRec();
     Rectangle playerBox = target->getCollisionRec();
     Vector2 myCenter = { myBox.x + (myBox.width / 2.0f), myBox.y + (myBox.height / 2.0f) };
     Vector2 playerCenter = { playerBox.x + (playerBox.width / 2.0f), playerBox.y + (playerBox.height / 2.0f) };
-
-    // Track based on centers so they face each other perfectly
     Vector2 toTarget = Vector2Subtract(playerCenter, myCenter);
     velocity = Vector2{0.f, 0.f};
 
     bool isColliding = CheckCollisionRecs(playerBox, myBox);
-
-    // 2. State Check: Are we currently stunned by taking damage?
-    // This checks if the current texture is the hit texture
     bool isPlayingHitAnim = (enemtexture.id == hitText.id);
-
-    // 3. Logic (Only move/attack if ALIVE and NOT currently stunned)
     if (getAlive() && !isPlayingHitAnim)
     {
         if (isColliding)
@@ -83,20 +75,17 @@ void Enemy2::tick(float deltaTime)
         }
         else 
         {
-            // Move until the collision boxes physically touch
             velocity = toTarget; 
             worldPos = Vector2Add(worldPos, Vector2Scale(Vector2Normalize(velocity), speed));
             
             enemtexture = runText;
             enemmaxFrame = 8.f;
 
-            // Face the correct direction based on movement
             if (velocity.x < 0.f) rightLeft = -1.f;
             else if (velocity.x > 0.f) rightLeft = 1.f;
         }
     }
-
-    // 4. Animation
+    //Animation
     runningTime += deltaTime;
     if (runningTime >= updateTime) 
     {
@@ -104,68 +93,54 @@ void Enemy2::tick(float deltaTime)
         
         if (!getAlive()) 
         {
-            // Death Animation: Stop on the last frame (frame 3, since max is 4)
             if (frame < enemmaxFrame - 1) frame++; 
         } 
         else 
         {
-            // Normal looping animation (Run, Attack, Hit)
             frame++;
             if (frame >= enemmaxFrame) 
             {
                 frame = 0;
-                
-                // If we just finished playing the 4-frame hit animation, wake up and run
                 if (isPlayingHitAnim) 
                 {
                     enemtexture = runText;
-                    enemmaxFrame = 8.f; // CRITICAL: Reset back to 8 for the run animation
+                    enemmaxFrame = 8.f;
                 }
             }
         }
     }
 
-    // 5. Draw Sprite
     textureWidth = enemtexture.width / enemmaxFrame;
     Rectangle source{frame * textureWidth, 0.f, rightLeft * textureWidth, textureHeight};
     Rectangle dest{getScreenPos().x, getScreenPos().y, scale * textureWidth, scale * textureHeight};
-    DrawTexturePro(enemtexture, source, dest, Vector2{0.f, 0.f}, 0.f, WHITE);
-    // --- DRAW SHADOW FIRST ---
-    // 1. Made the scale slightly smaller so it doesn't look like a giant hole
-    float shadowScale = scale * 1.0f; 
-    
-    // 2. Center X stays the same
+    //for shadow
+    float shadowScale = scale * 1.2f; 
     float shadowX = getScreenPos().x + ((scale * textureWidth) / 2.0f) - ((shadow.width * shadowScale) / 2.0f);
+    float shadowY = getScreenPos().y + (scale * textureHeight) - (shadow.height * shadowScale) - (25.f * scale); 
     
-    // 3. Center Y: We now subtract the ENTIRE shadow height to pull it up, 
-    // then add a tiny offset to fine-tune it perfectly under their feet.
-    float shadowY = getScreenPos().y + (scale * textureHeight) - (shadow.height * shadowScale) + (20.f * scale); 
-
     if (getAlive()) 
     {
         DrawTextureEx(shadow, Vector2{shadowX, shadowY}, 0.f, shadowScale, Color{255, 255, 255, 180});
     }
-    // ---------------------------------------------------------
-    // Optional Debug Overlays (Remove or comment out when done testing)
-    // ---------------------------------------------------------
-    // DrawRectangleLines(myBox.x, myBox.y, myBox.width, myBox.height, RED);
-    // DrawRectangleLines(playerBox.x, playerBox.y, playerBox.width, playerBox.height, BLUE);
+    DrawTexturePro(enemtexture, source, dest, Vector2{0.f, 0.f}, 0.f, WHITE);
 }
-void Enemy2::respawn(Vector2 pos)
+
+void Enemy2::respawn(Vector2 pos, float newMaxHealth, float newSpeed)
 {
     worldPos = pos;
-    health = 100.f;
+    health = newMaxHealth; 
+    speed = newSpeed;      
     enemtexture = runText;
     setAlive(true);
 }
-
-void Enemy2::takeDamage()
+void Enemy2::takeDamage(int* kill)
 {
     if(deathSound) PlaySound(*deathSound);
     health -= 20.f;
 
     if(health <= 0.f)
     {
+        (*kill)++; 
         setAlive(false);
         enemtexture = deathText; 
         enemmaxFrame = 4.f;  // Set max frames to 4 for death
