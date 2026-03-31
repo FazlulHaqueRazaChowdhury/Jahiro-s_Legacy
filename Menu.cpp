@@ -242,7 +242,7 @@ void Menu::renderStats()
                35, 2, GOLD);
 
     // Current Score
-    std::string csText = "Last Score: " + std::to_string(currentScore);
+    std::string csText = "Current Score: " + std::to_string(currentScore);
     Vector2 csSize = MeasureTextEx(customFont, csText.c_str(), 35, 2);
     DrawTextEx(customFont, csText.c_str(),
                Vector2{windowWidth / 2.f - csSize.x / 2, windowHeight / 2.f - 20},
