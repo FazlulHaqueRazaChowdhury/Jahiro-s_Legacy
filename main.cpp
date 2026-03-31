@@ -116,7 +116,7 @@ int main()
     // Texture2D skelHit = LoadTexture("characters/Skeleton/hit.png");
 
     std::vector<Enemy2> enemies2;
-    const int MAX_ENEMIES = 4;
+    const int MAX_ENEMIES = 8;
     int enemiesKilled = 0;
     int lvl = 1;
     int highScore = 0;
