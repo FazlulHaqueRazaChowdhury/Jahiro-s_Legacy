@@ -7,7 +7,7 @@
 
 class Health {
 public:
-    Health(Character* character, Vector2 pos, float scale);
+    Health(Character* character, Vector2 pos, float scale, bool isChar);
     
     Character *jahiro;
     
@@ -16,7 +16,7 @@ public:
     
     float width = healthBarTexture.width / 7.f;
     float height = healthBarTexture.height / 14.f; 
-    
+    bool charc;
 
     float currCol{1.f}; // Start at full health (column 1)
     float currRow{0.f}; // Use the first row style

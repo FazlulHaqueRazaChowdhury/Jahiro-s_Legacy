@@ -31,7 +31,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
@@ -147,7 +147,7 @@ int main()
     // game state
     Menu menu(windowWidth, windowHeight);
     GameState currentState = GameState::INTRO;
-    Health health(&knight, Vector2{0.f, 0.f}, 7.f);
+    Health health(&knight, Vector2{0.f, 0.f}, 7.f,true);
     SetTargetFPS(60);
     SetExitKey(0);
 
