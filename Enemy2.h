@@ -63,7 +63,7 @@ private:
     // Animation Variables
     float frame{0.f};
     float runningTime{0.f};
-    float updateTime{1.f / 6.f};
+    float updateTime{1.f / 16.f};
     float rightLeft{1.f};
     bool alive{true};
 };

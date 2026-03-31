@@ -21,10 +21,7 @@ Enemy2::Enemy2(Vector2 pos, Texture2D *run_texture, Texture2D *attack_texture, T
 
 Vector2 Enemy2::getScreenPos()
 {
-    // 1. Get the world distance between them
     Vector2 distance = Vector2Subtract(worldPos, target->getWorldPos());
-    
-    // 2. ADD the player's screen position to correct the camera offset!
     return Vector2Add(distance, target->getScreenPos());
 }
 
@@ -144,13 +141,13 @@ void Enemy2::takeDamage(int* kill)
         (*kill)++; 
         setAlive(false);
         enemtexture = deathText; 
-        enemmaxFrame = 4.f;  // Set max frames to 4 for death
+        enemmaxFrame = 4.f;  
         frame = 0.f; 
     }
     else 
     {
         enemtexture = hitText;
-        enemmaxFrame = 4.f;  // Set max frames to 4 for hit
+        enemmaxFrame = 4.f;  
         frame = 0.f; 
     }
 }

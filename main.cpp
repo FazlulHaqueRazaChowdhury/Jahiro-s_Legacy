@@ -116,7 +116,7 @@ int main()
     // Texture2D skelHit = LoadTexture("characters/Skeleton/hit.png");
 
     std::vector<Enemy2> enemies2;
-    const int MAX_ENEMIES = 4;
+    const int MAX_ENEMIES = 8;
     int enemiesKilled = 0;
     int lvl = 1;
     int highScore = 0;
@@ -290,6 +290,8 @@ int main()
                 if (enemy.getAlive())
                 {
                     Vector2 push = enemy.getPushVector(enemies2);
+                    float pushForce = 6.0f; 
+                    push = Vector2Scale(push, pushForce);
                     enemy.setWorldPos(Vector2Add(enemy.getWorldPos(), push));
                 }
             }
@@ -355,11 +357,6 @@ int main()
             {
                 knight.undoMovement();
             }
-            // all tick
-            for (auto &enemy : enemies2)
-            {
-                enemy.tick(GetFrameTime());
-            }
             knight.tick(GetFrameTime());
             float currMap = menu.getSelectedMap();
             for (auto &leaf : leaves)
@@ -411,7 +408,14 @@ int main()
             DrawRectangleLinesEx(Rectangle{(float)modalX, (float)modalY, (float)modalW, (float)modalH}, 3, RED);
 
             // Title
-            DrawText("JAHIRO IS DEAD!", modalX + 110, modalY + 30, 35, RED);
+            if(highScore > currentScore)
+            DrawText("DO NOT PLAY WITH JAHIRO'S IJJOT!", modalX+10, modalY + 30, 28, RED);
+            else
+            {
+
+                DrawText("JAHIRO SAVED HIS LEGACY.", modalX + 110, modalY + 30, 28, RED);
+                DrawText("THANK YOU!", modalX + 170, modalY + 60, 28, RED);
+            }
 
             // Score display
             DrawText(TextFormat("Score: %d", currentScore), modalX + 190, modalY + 100, 28, WHITE);
