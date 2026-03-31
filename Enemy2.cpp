@@ -134,7 +134,7 @@ void Enemy2::respawn(Vector2 pos, float newMaxHealth, float newSpeed)
     setAlive(true);
 }
 void Enemy2::takeDamage(int* kill)
-{
+{    
     if(deathSound) PlaySound(*deathSound);
     if(hitSound && health > 0.f) PlaySound(*hitSound);
     health -= 20.f;

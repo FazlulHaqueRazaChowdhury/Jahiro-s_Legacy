@@ -12,6 +12,7 @@
 #include "Leaf.h"
 #include "Grass.h"
 #include "Enemy2.h"
+#include <fstream>
 
 Vector2 spawnPositions[] = {
     {700.f, 1.f},
@@ -119,6 +120,12 @@ int main()
     int enemiesKilled = 0;
     int lvl = 1;
     int highScore = 0;
+    std::ifstream loadFile("savegame.dat");
+    if (loadFile.is_open())
+    {
+        loadFile >> highScore;
+        loadFile.close();
+    }
     int currentScore = 0;
     int preLvl = 1;
     int inc = 5;
@@ -179,11 +186,11 @@ int main()
     {
         UpdateMusicStream(bgMusic);
 
-        SetMusicVolume(bgMusic, menu.getMusicVolume());
-        SetSoundVolume(gunShot, menu.getSfxVolume());
-        SetSoundVolume(enemyDeath, menu.getSfxVolume());
-        SetSoundVolume(reloadSound, menu.getSfxVolume());
-        SetSoundVolume(bulletHitSound, menu.getSfxVolume());
+        SetMusicVolume(bgMusic, menu.getMusicVolume() * 0.2f);
+        SetSoundVolume(enemyDeath, menu.getSfxVolume() * 1.0f);
+        SetSoundVolume(reloadSound, menu.getSfxVolume() * 0.7f);
+        SetSoundVolume(bulletHitSound, menu.getSfxVolume() * 0.5f);
+        SetSoundVolume(gunShot, menu.getSfxVolume() * 0.3f);
         SetSoundVolume(gameOverSound, menu.getSfxVolume());
 
         BeginDrawing();
@@ -305,7 +312,17 @@ int main()
             lvl = 1 + (enemiesKilled / inc);
             currentScore = enemiesKilled * lvl;
             if (currentScore > highScore)
+            {
                 highScore = currentScore;
+                menu.setHighScore(highScore);
+                std::ofstream saveFile("savegame.dat");
+                if (saveFile.is_open())
+                {
+                    saveFile << highScore;
+                    saveFile.close();
+                }
+            }
+            menu.setHighScore(highScore);
             if (lvl > preLvl)
             {
                 knight.setHealth(100.f);
@@ -373,7 +390,7 @@ int main()
         else if (!knight.getAlive() && currentState == GameState::PLAYING)
         {
             currentState = GameState::GAME_OVER;
-             PlaySound(gameOverSound);
+            PlaySound(gameOverSound);
         }
 
         else if (currentState == GameState::GAME_OVER)
