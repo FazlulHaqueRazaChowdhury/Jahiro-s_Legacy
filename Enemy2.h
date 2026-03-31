@@ -4,32 +4,32 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "Character.h"
-#include <vector> 
+#include <vector>
 
-class Enemy2 
+class Enemy2
 {
 public:
     Enemy2(Vector2 pos, Texture2D *run_texture, Texture2D *attack_texture, Texture2D *hit_texture, Texture2D *death_texture, float health, float scale);
-    
+
     // Core Functions
     void tick(float deltaTime);
-    void takeDamage(int* kill);
+    void takeDamage(int *kill);
     void respawn(Vector2 pos, float newMaxHealth, float newSpeed);
     void undoMovement() { worldPos = worldPosLastFrame; }
-    
+
     // Getters & Setters
-    void setTarget(Character* character) { target = character; }
-    void setDeathSound(Sound& sound) { deathSound = &sound; }
-    void setAlive(bool isAlive) { alive = isAlive;}
-    void setScale(float s) { scale = s; }   
+    void setTarget(Character *character) { target = character; }
+    void setDeathSound(Sound &sound) { deathSound = &sound; }
+    void setAlive(bool isAlive) { alive = isAlive; }
+    void setScale(float s) { scale = s; }
     void setWorldPos(Vector2 pos) { worldPos = pos; }
-    
+
     bool getAlive() const { return alive; }
     Vector2 getWorldPos() const { return worldPos; }
     Vector2 getScreenPos();
     Rectangle getCollisionRec2();
     Rectangle getCollisionRec();
-    Vector2 getPushVector(std::vector<Enemy2>& allEnemies);
+    Vector2 getPushVector(std::vector<Enemy2> &allEnemies);
 
     // Textures & Audio
     Texture2D enemtexture;
@@ -38,7 +38,7 @@ public:
     Texture2D hitText;
     Texture2D deathText;
     Texture2D shadow{LoadTexture("characters/shadow.png")};
-    Sound* deathSound{nullptr};
+    Sound *deathSound{nullptr};
 
     // Public Stats
     float health{50.f};
@@ -47,7 +47,10 @@ public:
     float enemmaxFrame{8.f};
     float textureHeight;
     float textureWidth;
-    Character* target;
+    Character *target;
+
+    void setHitSound(Sound &sound) { hitSound = &sound; }
+    Sound *hitSound{nullptr};
 
 private:
     // Variables previously inherited from BaseCharacter
@@ -56,7 +59,7 @@ private:
     Vector2 velocity{0.f, 0.f};
     float speed{1.f};
     float scale{1.f};
-    
+
     // Animation Variables
     float frame{0.f};
     float runningTime{0.f};

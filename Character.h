@@ -34,6 +34,7 @@ class Character : public BaseCharacter
     int getCurrentAmmo() const { return currentAmmo; }
     int getMaxAmmo() const { return maxAmmo; }
     bool getIsReloading() const { return isReloading; }
+    void setReloadSound(Sound* sound) { reloadSound = sound; }
  
 
 private:
@@ -47,6 +48,7 @@ private:
      float recoilOffset=0.f;
      float recoilStrength=8.f;
      float recoilReturnSpeed=25.f;
+     Sound* reloadSound{nullptr};
 };
 
 #endif

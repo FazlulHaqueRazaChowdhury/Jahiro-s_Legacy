@@ -12,6 +12,7 @@
 #include "Leaf.h"
 #include "Grass.h"
 #include "Enemy2.h"
+#include <fstream>
 
 Vector2 spawnPositions[] = {
     {700.f, 1.f},
@@ -31,7 +32,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    //  SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
@@ -46,6 +47,9 @@ int main()
     float introTimer = 0.f;
     float introDuration = 5.f;
 
+    // game ending bg
+    Texture2D gameOverBg = LoadTexture("nature_tileset/Game_ending_bg.png");
+
     // bg music
     Music bgMusic = LoadMusicStream("sounds/Burn The World Waltz .mp3");
     bgMusic.looping = true;
@@ -53,6 +57,9 @@ int main()
     PlayMusicStream(bgMusic);
     Sound gunShot = LoadSound("sounds/freesound_community-gun-shots-from-a-distance-7-96391.mp3");
     Sound enemyDeath = LoadSound("sounds/universfield-breeze-of-blood-122253.mp3");
+    Sound reloadSound = LoadSound("sounds/reload.mp3");
+    Sound bulletHitSound = LoadSound("sounds/enemy_hit.mp3");
+    Sound gameOverSound = LoadSound("sounds/game_over.mp3");
     Texture2D cursor = LoadTexture("characters/cursor.png");
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map4.png");
@@ -91,6 +98,7 @@ int main()
     // goblin.setDeathSound(enemyDeath);
     knight.setShootSound(&gunShot);
     knight.setShootSound(&gunShot);
+    knight.setReloadSound(&reloadSound);
 
     Texture2D eyeRun = LoadTexture("characters/FlyingEye/run.png");
     Texture2D eyeAttk = LoadTexture("characters/FlyingEye/Attack.png");
@@ -111,8 +119,17 @@ int main()
     const int MAX_ENEMIES = 4;
     int enemiesKilled = 0;
     int lvl = 1;
+    int highScore = 0;
+    std::ifstream loadFile("savegame.dat");
+    if (loadFile.is_open())
+    {
+        loadFile >> highScore;
+        loadFile.close();
+    }
+    int currentScore = 0;
     int preLvl = 1;
     int inc = 5;
+
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         // 0 = Goblin, 1 = Flying Eye
@@ -122,6 +139,7 @@ int main()
             Enemy2 e(spawnPositions[i], &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
+            e.setHitSound(bulletHitSound);
             enemies2.push_back(e);
         }
         else if (randomType == 1)
@@ -129,6 +147,7 @@ int main()
             Enemy2 e(spawnPositions[i], &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
+            e.setHitSound(bulletHitSound);
             enemies2.push_back(e);
         }
         else
@@ -137,6 +156,7 @@ int main()
             Enemy2 e(spawnPositions[i], &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
+            e.setHitSound(bulletHitSound);
             enemies2.push_back(e);
         }
     }
@@ -146,8 +166,9 @@ int main()
 
     // game state
     Menu menu(windowWidth, windowHeight);
+    menu.setHighScore(highScore);
     GameState currentState = GameState::INTRO;
-    Health health(&knight, Vector2{0.f, 0.f}, 7.f,true);
+    Health health(&knight, Vector2{0.f, 0.f}, 7.f);
     SetTargetFPS(60);
     SetExitKey(0);
 
@@ -165,9 +186,12 @@ int main()
     {
         UpdateMusicStream(bgMusic);
 
-        SetMusicVolume(bgMusic, menu.getMusicVolume());
-        SetSoundVolume(gunShot, menu.getSfxVolume());
-        SetSoundVolume(enemyDeath, menu.getSfxVolume());
+        SetMusicVolume(bgMusic, menu.getMusicVolume() * 0.2f);
+        SetSoundVolume(enemyDeath, menu.getSfxVolume() * 1.0f);
+        SetSoundVolume(reloadSound, menu.getSfxVolume() * 0.7f);
+        SetSoundVolume(bulletHitSound, menu.getSfxVolume() * 0.5f);
+        SetSoundVolume(gunShot, menu.getSfxVolume() * 0.3f);
+        SetSoundVolume(gameOverSound, menu.getSfxVolume());
 
         BeginDrawing();
         ClearBackground(WHITE);
@@ -196,12 +220,11 @@ int main()
             // skip with any key
             if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                 currentState = GameState::MENU;
-                
         }
 
         else if (currentState == GameState::MENU ||
                  currentState == GameState::MAP_SELECTION ||
-                 currentState == GameState::SETTINGS)
+                 currentState == GameState::SETTINGS || currentState == GameState::STATS)
         { // menuscreen
             menu.render(currentState);
             GameState newState = menu.handleInput(currentState);
@@ -227,7 +250,6 @@ int main()
 
         else if (currentState == GameState::TRANSITION)
         {
-            
 
             if (nextState == GameState::PLAYING)
             {
@@ -247,7 +269,7 @@ int main()
 
         else if (currentState == GameState::PLAYING && knight.getAlive())
         {
-                if (IsKeyPressed(KEY_ESCAPE))
+            if (IsKeyPressed(KEY_ESCAPE))
                 currentState = GameState::MENU;
 
             currentMap->render(knight, GetFrameTime());
@@ -288,6 +310,20 @@ int main()
             }
             // enemy respawning && game core logics
             lvl = 1 + (enemiesKilled / inc);
+            currentScore = enemiesKilled * lvl;
+            if (currentScore > highScore)
+            {
+                highScore = currentScore;
+                menu.setHighScore(highScore);
+                std::ofstream saveFile("savegame.dat");
+                if (saveFile.is_open())
+                {
+                    saveFile << highScore;
+                    saveFile.close();
+                }
+            }
+            menu.setHighScore(highScore);
+            menu.setCurrentScore(currentScore);
             if (lvl > preLvl)
             {
                 knight.setHealth(100.f);
@@ -335,7 +371,7 @@ int main()
             int topBoxY = 20;
             DrawRectangle(topBoxX, topBoxY, 320, 80, Fade(BLACK, 0.8f));
             DrawRectangleLines(topBoxX, topBoxY, 320, 80, WHITE);
-            DrawText(TextFormat("JAHIRO's IJJOT: %d", enemiesKilled*lvl), topBoxX + 15, topBoxY + 15, 20, WHITE);
+            DrawText(TextFormat("JAHIRO's IJJOT: %d", enemiesKilled * lvl), topBoxX + 15, topBoxY + 15, 20, WHITE);
             DrawText(TextFormat("Level: %d", lvl), topBoxX + 15, topBoxY + 45, 20, WHITE);
             int bottomBoxX = 1280 - 280;
             int bottomBoxY = 720 - 70;
@@ -352,8 +388,83 @@ int main()
                 DrawText(TextFormat("AMMO: %d / %d", knight.getCurrentAmmo(), knight.getMaxAmmo()), bottomBoxX + 15, bottomBoxY + 15, 20, WHITE);
             }
         }
-        else if(!knight.getAlive() && currentState != GameState::MENU){
-                DrawText("Our Jahiro Is DEAD!!", 640, 360.f + 15, 50, RED);
+        else if (!knight.getAlive() && currentState == GameState::PLAYING)
+        {
+            currentState = GameState::GAME_OVER;
+            PlaySound(gameOverSound);
+        }
+
+        else if (currentState == GameState::GAME_OVER)
+        {
+            // Background
+            DrawTexturePro(gameOverBg,
+                           Rectangle{0, 0, (float)gameOverBg.width, (float)gameOverBg.height},
+                           Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
+                           Vector2{0, 0}, 0.f, WHITE);
+            DrawRectangle(0, 0, windowWidth, windowHeight, Fade(BLACK, 0.5f));
+
+            // Modal box
+            int modalW = 560, modalH = 400;
+            int modalX = windowWidth / 2 - modalW / 2;
+            int modalY = windowHeight / 2 - modalH / 2;
+            DrawRectangle(modalX, modalY, modalW, modalH, Color{20, 20, 20, 220});
+            DrawRectangleLinesEx(Rectangle{(float)modalX, (float)modalY, (float)modalW, (float)modalH}, 3, RED);
+
+            // Title
+            DrawText("JAHIRO IS DEAD!", modalX + 110, modalY + 30, 35, RED);
+
+            // Score display
+            DrawText(TextFormat("Score: %d", currentScore), modalX + 190, modalY + 100, 28, WHITE);
+            DrawText(TextFormat("High Score: %d", highScore), modalX + 160, modalY + 140, 28, GOLD);
+
+            // REPLAY button
+            Rectangle replayBtn = {(float)modalX + 30, (float)modalY + 300, 150, 55};
+            bool replayHovered = CheckCollisionPointRec(GetMousePosition(), replayBtn);
+            DrawRectangleRec(replayBtn, replayHovered ? GREEN : DARKGREEN);
+            DrawText("REPLAY", modalX + 50, modalY + 318, 22, WHITE);
+
+            // MENU button
+            Rectangle menuBtn = {(float)modalX + 205, (float)modalY + 300, 150, 55};
+            bool menuHovered = CheckCollisionPointRec(GetMousePosition(), menuBtn);
+            DrawRectangleRec(menuBtn, menuHovered ? BLUE : DARKBLUE);
+            DrawText("MENU", modalX + 238, modalY + 318, 22, WHITE);
+
+            // QUIT button
+            Rectangle quitBtn = {(float)modalX + 380, (float)modalY + 300, 150, 55};
+            bool quitHovered = CheckCollisionPointRec(GetMousePosition(), quitBtn);
+            DrawRectangleRec(quitBtn, quitHovered ? Color{220, 50, 50, 255} : Color{150, 20, 20, 255});
+            DrawText("QUIT", modalX + 418, modalY + 318, 22, WHITE);
+
+            ShowCursor();
+
+            if (replayHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                knight.setHealth(100.f);
+                knight.setAlive(true);
+                enemiesKilled = 0;
+                currentScore = 0;
+                lvl = 1;
+                preLvl = 1;
+                runningTime = 0.f;
+                for (auto &enemy : enemies2)
+                    enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
+                currentState = GameState::PLAYING;
+            }
+            if (menuHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                knight.setHealth(100.f);
+                knight.setAlive(true);
+                enemiesKilled = 0;
+                currentScore = 0;
+                lvl = 1;
+                preLvl = 1;
+                runningTime = 0.f;
+                for (auto &enemy : enemies2)
+                    enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
+                currentState = GameState::MENU;
+            }
+            if (quitHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                currentState = GameState::QUIT;
         }
 
         EndDrawing();
@@ -362,6 +473,10 @@ int main()
     UnloadSound(gunShot);
     UnloadSound(enemyDeath);
     UnloadTexture(introPage);
+    UnloadTexture(gameOverBg);
+    UnloadSound(reloadSound);
+    UnloadSound(bulletHitSound);
+    UnloadSound(gameOverSound);
     CloseAudioDevice();
     CloseWindow();
 }

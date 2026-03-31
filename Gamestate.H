@@ -10,6 +10,7 @@ enum class GameState
     TRANSITION,
     PLAYING,
     PAUSED,
+    STATS,
     GAME_OVER,
     QUIT
 };
