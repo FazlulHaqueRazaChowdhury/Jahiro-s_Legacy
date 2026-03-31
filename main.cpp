@@ -60,6 +60,7 @@ int main()
     Sound reloadSound = LoadSound("sounds/reload.mp3");
     Sound bulletHitSound = LoadSound("sounds/enemy_hit.mp3");
     Sound gameOverSound = LoadSound("sounds/game_over.mp3");
+    Sound gameOverSoundWin = LoadSound("sounds/win.mp3");
     Texture2D cursor = LoadTexture("characters/cursor.png");
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map4.png");
@@ -388,7 +389,12 @@ int main()
         else if (!knight.getAlive() && currentState == GameState::PLAYING)
         {
             currentState = GameState::GAME_OVER;
-            PlaySound(gameOverSound);
+            if(highScore > currentScore){
+                PlaySound(gameOverSound);
+            }
+            else {
+                PlaySound(gameOverSoundWin);
+            }
         }
 
         else if (currentState == GameState::GAME_OVER)
