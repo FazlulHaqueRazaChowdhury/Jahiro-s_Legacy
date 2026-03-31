@@ -56,6 +56,9 @@ int main()
     PlayMusicStream(bgMusic);
     Sound gunShot = LoadSound("sounds/freesound_community-gun-shots-from-a-distance-7-96391.mp3");
     Sound enemyDeath = LoadSound("sounds/universfield-breeze-of-blood-122253.mp3");
+    Sound reloadSound = LoadSound("sounds/reload.mp3");
+    Sound bulletHitSound = LoadSound("sounds/enemy_hit.mp3");
+    Sound gameOverSound = LoadSound("sounds/game_over.mp3");
     Texture2D cursor = LoadTexture("characters/cursor.png");
 
     Texture2D map1Tex = LoadTexture("nature_tileset/map4.png");
@@ -94,6 +97,7 @@ int main()
     // goblin.setDeathSound(enemyDeath);
     knight.setShootSound(&gunShot);
     knight.setShootSound(&gunShot);
+    knight.setReloadSound(&reloadSound);
 
     Texture2D eyeRun = LoadTexture("characters/FlyingEye/run.png");
     Texture2D eyeAttk = LoadTexture("characters/FlyingEye/Attack.png");
@@ -128,6 +132,7 @@ int main()
             Enemy2 e(spawnPositions[i], &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
+            e.setHitSound(bulletHitSound);
             enemies2.push_back(e);
         }
         else if (randomType == 1)
@@ -135,6 +140,7 @@ int main()
             Enemy2 e(spawnPositions[i], &mushRun, &mushAttk, &mushHit, &mushDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
+            e.setHitSound(bulletHitSound);
             enemies2.push_back(e);
         }
         else
@@ -143,6 +149,7 @@ int main()
             Enemy2 e(spawnPositions[i], &eyeRun, &eyeAttk, &eyeHit, &eyeDeath, 100.f, 1.5f);
             e.setTarget(&knight);
             e.setDeathSound(enemyDeath);
+            e.setHitSound(bulletHitSound);
             enemies2.push_back(e);
         }
     }
@@ -175,6 +182,9 @@ int main()
         SetMusicVolume(bgMusic, menu.getMusicVolume());
         SetSoundVolume(gunShot, menu.getSfxVolume());
         SetSoundVolume(enemyDeath, menu.getSfxVolume());
+        SetSoundVolume(reloadSound, menu.getSfxVolume());
+        SetSoundVolume(bulletHitSound, menu.getSfxVolume());
+        SetSoundVolume(gameOverSound, menu.getSfxVolume());
 
         BeginDrawing();
         ClearBackground(WHITE);
@@ -363,80 +373,81 @@ int main()
         else if (!knight.getAlive() && currentState == GameState::PLAYING)
         {
             currentState = GameState::GAME_OVER;
+             PlaySound(gameOverSound);
         }
 
-       else if(currentState == GameState::GAME_OVER)
-{
-    // Background
-    DrawTexturePro(gameOverBg,
-        Rectangle{0,0,(float)gameOverBg.width,(float)gameOverBg.height},
-        Rectangle{0,0,(float)windowWidth,(float)windowHeight},
-        Vector2{0,0}, 0.f, WHITE);
-    DrawRectangle(0, 0, windowWidth, windowHeight, Fade(BLACK, 0.5f));
+        else if (currentState == GameState::GAME_OVER)
+        {
+            // Background
+            DrawTexturePro(gameOverBg,
+                           Rectangle{0, 0, (float)gameOverBg.width, (float)gameOverBg.height},
+                           Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
+                           Vector2{0, 0}, 0.f, WHITE);
+            DrawRectangle(0, 0, windowWidth, windowHeight, Fade(BLACK, 0.5f));
 
-    // Modal box
-    int modalW = 560, modalH = 400;
-    int modalX = windowWidth/2 - modalW/2;
-    int modalY = windowHeight/2 - modalH/2;
-    DrawRectangle(modalX, modalY, modalW, modalH, Color{20,20,20,220});
-    DrawRectangleLinesEx(Rectangle{(float)modalX,(float)modalY,(float)modalW,(float)modalH}, 3, RED);
+            // Modal box
+            int modalW = 560, modalH = 400;
+            int modalX = windowWidth / 2 - modalW / 2;
+            int modalY = windowHeight / 2 - modalH / 2;
+            DrawRectangle(modalX, modalY, modalW, modalH, Color{20, 20, 20, 220});
+            DrawRectangleLinesEx(Rectangle{(float)modalX, (float)modalY, (float)modalW, (float)modalH}, 3, RED);
 
-    // Title
-    DrawText("JAHIRO IS DEAD!", modalX + 110, modalY + 30, 35, RED);
+            // Title
+            DrawText("JAHIRO IS DEAD!", modalX + 110, modalY + 30, 35, RED);
 
-    // Score display
-    DrawText(TextFormat("Score: %d", currentScore), modalX + 190, modalY + 100, 28, WHITE);
-    DrawText(TextFormat("High Score: %d", highScore), modalX + 160, modalY + 140, 28, GOLD);
+            // Score display
+            DrawText(TextFormat("Score: %d", currentScore), modalX + 190, modalY + 100, 28, WHITE);
+            DrawText(TextFormat("High Score: %d", highScore), modalX + 160, modalY + 140, 28, GOLD);
 
-    // REPLAY button
-    Rectangle replayBtn = {(float)modalX + 30, (float)modalY + 300, 150, 55};
-    bool replayHovered = CheckCollisionPointRec(GetMousePosition(), replayBtn);
-    DrawRectangleRec(replayBtn, replayHovered ? GREEN : DARKGREEN);
-    DrawText("REPLAY", modalX + 50, modalY + 318, 22, WHITE);
+            // REPLAY button
+            Rectangle replayBtn = {(float)modalX + 30, (float)modalY + 300, 150, 55};
+            bool replayHovered = CheckCollisionPointRec(GetMousePosition(), replayBtn);
+            DrawRectangleRec(replayBtn, replayHovered ? GREEN : DARKGREEN);
+            DrawText("REPLAY", modalX + 50, modalY + 318, 22, WHITE);
 
-    // MENU button
-    Rectangle menuBtn = {(float)modalX + 205, (float)modalY + 300, 150, 55};
-    bool menuHovered = CheckCollisionPointRec(GetMousePosition(), menuBtn);
-    DrawRectangleRec(menuBtn, menuHovered ? BLUE : DARKBLUE);
-    DrawText("MENU", modalX + 238, modalY + 318, 22, WHITE);
+            // MENU button
+            Rectangle menuBtn = {(float)modalX + 205, (float)modalY + 300, 150, 55};
+            bool menuHovered = CheckCollisionPointRec(GetMousePosition(), menuBtn);
+            DrawRectangleRec(menuBtn, menuHovered ? BLUE : DARKBLUE);
+            DrawText("MENU", modalX + 238, modalY + 318, 22, WHITE);
 
-    // QUIT button
-    Rectangle quitBtn = {(float)modalX + 380, (float)modalY + 300, 150, 55};
-    bool quitHovered = CheckCollisionPointRec(GetMousePosition(), quitBtn);
-    DrawRectangleRec(quitBtn, quitHovered ? Color{220,50,50,255} : Color{150,20,20,255});
-    DrawText("QUIT", modalX + 418, modalY + 318, 22, WHITE);
+            // QUIT button
+            Rectangle quitBtn = {(float)modalX + 380, (float)modalY + 300, 150, 55};
+            bool quitHovered = CheckCollisionPointRec(GetMousePosition(), quitBtn);
+            DrawRectangleRec(quitBtn, quitHovered ? Color{220, 50, 50, 255} : Color{150, 20, 20, 255});
+            DrawText("QUIT", modalX + 418, modalY + 318, 22, WHITE);
 
-    ShowCursor();
+            ShowCursor();
 
-    if(replayHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        knight.setHealth(100.f);
-        knight.setAlive(true);
-        enemiesKilled = 0;
-        currentScore = 0;
-        lvl = 1;
-        preLvl = 1;
-        runningTime = 0.f;
-        for(auto& enemy : enemies2)
-            enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
-        currentState = GameState::PLAYING;
-    }
-    if(menuHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        knight.setHealth(100.f);
-        knight.setAlive(true);
-        enemiesKilled = 0;
-        currentScore = 0;
-        lvl = 1;
-        preLvl = 1;
-        runningTime = 0.f;
-        for(auto& enemy : enemies2)
-            enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
-        currentState = GameState::MENU;
-    }
-    if(quitHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-        currentState = GameState::QUIT;
-}
+            if (replayHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                knight.setHealth(100.f);
+                knight.setAlive(true);
+                enemiesKilled = 0;
+                currentScore = 0;
+                lvl = 1;
+                preLvl = 1;
+                runningTime = 0.f;
+                for (auto &enemy : enemies2)
+                    enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
+                currentState = GameState::PLAYING;
+            }
+            if (menuHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                knight.setHealth(100.f);
+                knight.setAlive(true);
+                enemiesKilled = 0;
+                currentScore = 0;
+                lvl = 1;
+                preLvl = 1;
+                runningTime = 0.f;
+                for (auto &enemy : enemies2)
+                    enemy.respawn(GetRandomSpawnPos(), 50.f, 2.5f);
+                currentState = GameState::MENU;
+            }
+            if (quitHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                currentState = GameState::QUIT;
+        }
 
         EndDrawing();
     }
@@ -445,6 +456,9 @@ int main()
     UnloadSound(enemyDeath);
     UnloadTexture(introPage);
     UnloadTexture(gameOverBg);
+    UnloadSound(reloadSound);
+    UnloadSound(bulletHitSound);
+    UnloadSound(gameOverSound);
     CloseAudioDevice();
     CloseWindow();
 }

@@ -61,7 +61,7 @@ private:
     Texture2D playIcon;
     Texture2D settingsIcon;
     Texture2D quitIcon;
-    int highScore{0};
+    int highScore{};
    
 };
 

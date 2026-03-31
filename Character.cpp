@@ -61,7 +61,7 @@ void Character::tick(float deltaTime)
         playerScreenCenter.y-20.f
     }, deltaTime,rightLeft);
     }
-    // FROM THIS PART WAS DONE BY AZWAD HOSSAIN SHADMAN shooting mechanism
+    // FROM THIS PART WAS DONE BY AZWAD HUSSAIN SHADMAN shooting mechanism
   
 
     // AIM DIRECTION 
@@ -224,7 +224,9 @@ void Character::tick(float deltaTime)
     if (IsKeyPressed(KEY_R) && currentAmmo < maxAmmo && !isReloading)
     {
         isReloading = true;
+        if(reloadSound) PlaySound(*reloadSound);
     }
+    
     // Shooting Logic
     if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B)) && !isReloading)
     {
@@ -238,6 +240,7 @@ void Character::tick(float deltaTime)
         else 
         {
             isReloading = true;
+                 if(reloadSound) PlaySound(*reloadSound);
         }
     }
     // Bullets
