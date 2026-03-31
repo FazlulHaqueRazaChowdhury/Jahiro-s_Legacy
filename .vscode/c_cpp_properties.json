@@ -3,7 +3,9 @@
     {
       "name": "windows-gcc-x86",
       "includePath": [
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/**",
+        "C:/raylib/raylib/src"
+        
       ],
       "defines": [
         "_DEBUG",

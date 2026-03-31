@@ -3,104 +3,99 @@
 #include <string>
 
 Menu::Menu(int winWidth, int winHeight)
-    : windowWidth(winWidth), windowHeight(winHeight), 
+    : windowWidth(winWidth), windowHeight(winHeight),
       selectedMap(1), musicVolume(0.5f), sfxVolume(0.5f)
 {
-    
+
     // Load menu background
     menuBackground = LoadTexture("nature_tileset/landing-2_bg.png");
     customFont = LoadFont("fonts/XTypewriter-Bold.ttf");
-// Load icons
+    // Load icons
     playIcon = LoadTexture("icons/play-button.png");
     settingsIcon = LoadTexture("icons/cog.png");
-    quitIcon=LoadTexture("icons/exit-door.png");
+    quitIcon = LoadTexture("icons/exit-door.png");
+    statIcon = LoadTexture("icons/trophy.png");
 
     // main menu buttons
     playButton = {
         (float)windowWidth / 2.f - 150,
         (float)windowHeight / 2.f - 120,
         300,
-        70
-    };
-    
+        70};
+
     mapSelectButton = {
         (float)windowWidth / 2.f - 150,
         (float)windowHeight / 2.f - 30,
         300,
-        70
-    };
-    
+        70};
+
     settingsButton = {
         (float)windowWidth / 2.f - 600,
         (float)windowHeight - 100.f,
         100.f,
-        70.f
-    };
-    
+        70.f};
+
+    statsButton = {
+        (float)windowWidth / 2.f - 600,
+        (float)windowHeight - 200.f,
+        100.f,
+        70.f};
+
     quitButton = {
         (float)windowWidth - 250.f,
         (float)windowHeight - 100.f,
         170.f,
-        70.f
-    };
-    
+        70.f};
+
     // map selection buttons
     map1Button = {
         (float)windowWidth / 2.f - 350,
         (float)windowHeight / 2.f - 50,
         300,
-        80
-    };
-    
+        80};
+
     map2Button = {
         (float)windowWidth / 2.f + 50,
         (float)windowHeight / 2.f - 50,
         350,
-        80
-    };
-    
+        80};
+
     backFromMapButton = {
         (float)windowWidth / 2.f - 150,
         (float)windowHeight / 2.f + 120,
         300,
-        60
-    };
-    
+        60};
+
     // setting button
     musicUpButton = {
         (float)windowWidth / 2.f + 100,
         (float)windowHeight / 2.f - 80,
         80,
-        60
-    };
-    
+        60};
+
     musicDownButton = {
         (float)windowWidth / 2.f - 180,
         (float)windowHeight / 2.f - 80,
         80,
-        60
-    };
-    
+        60};
+
     sfxUpButton = {
         (float)windowWidth / 2.f + 100,
         (float)windowHeight / 2.f + 20,
         80,
-        60
-    };
-    
+        60};
+
     sfxDownButton = {
         (float)windowWidth / 2.f - 180,
         (float)windowHeight / 2.f + 20,
         80,
-        60
-    };
-    
+        60};
+
     backFromSettingsButton = {
         (float)windowWidth / 2.f - 150.f,
         (float)windowHeight / 2.f + 150.f,
         300,
-        60
-    };
+        60};
 }
 
 Menu::~Menu()
@@ -110,6 +105,7 @@ Menu::~Menu()
     UnloadTexture(settingsIcon);
     UnloadTexture(playIcon);
     UnloadTexture(quitIcon);
+    UnloadTexture(statIcon);
 }
 
 bool Menu::isButtonHovered(Rectangle button)
@@ -118,16 +114,16 @@ bool Menu::isButtonHovered(Rectangle button)
     return CheckCollisionPointRec(mousePos, button);
 }
 
-void Menu::drawButtonWithSize(Rectangle button, const char* text, Color normalColor, Color hoverColor, int fontSize)
+void Menu::drawButtonWithSize(Rectangle button, const char *text, Color normalColor, Color hoverColor, int fontSize)
 {
     Color currentColor = isButtonHovered(button) ? hoverColor : normalColor;
 
-    //to made the button transparent , 0 lest,250 max
-     currentColor.a = 120;
+    // to made the button transparent , 0 lest,250 max
+    currentColor.a = 120;
 
     DrawRectangleRec(button, currentColor);
     // DrawRectangleLinesEx(button, 3, BLACK);
-    
+
     // Use custom font
     Vector2 textSize = MeasureTextEx(customFont, text, fontSize, 2);
     DrawTextEx(
@@ -135,12 +131,10 @@ void Menu::drawButtonWithSize(Rectangle button, const char* text, Color normalCo
         text,
         Vector2{
             button.x + (button.width - textSize.x) / 2,
-            button.y + (button.height - fontSize) / 2
-        },
+            button.y + (button.height - fontSize) / 2},
         fontSize,
         2,
-        WHITE
-    );
+        WHITE);
 }
 
 void Menu::drawIconButton(Rectangle button, Texture2D icon, Color normalColor, Color hoverColor)
@@ -150,7 +144,7 @@ void Menu::drawIconButton(Rectangle button, Texture2D icon, Color normalColor, C
 
     DrawRectangleRec(button, currentColor);
     // DrawRectangleLinesEx(button, 3, BLACK);
-    
+
     // Center the icon in button
     float iconSize = button.height * 0.7f;
     DrawTexturePro(
@@ -160,72 +154,68 @@ void Menu::drawIconButton(Rectangle button, Texture2D icon, Color normalColor, C
             button.x + (button.width - iconSize) / 2,
             button.y + (button.height - iconSize) / 2,
             iconSize,
-            iconSize
-        },
+            iconSize},
         Vector2{0, 0},
         0.0f,
-        WHITE
-    );
+        WHITE);
 }
-void Menu::drawButtonWithIcon(Rectangle button, const char* text, Texture2D icon, Color normalColor, Color hoverColor, int fontSize)
+void Menu::drawButtonWithIcon(Rectangle button, const char *text, Texture2D icon, Color normalColor, Color hoverColor, int fontSize)
 {
     Color currentColor = isButtonHovered(button) ? hoverColor : normalColor;
     currentColor.a = 120;
 
     DrawRectangleRec(button, currentColor);
     // DrawRectangleLinesEx(button, 3, BLACK);
-    
+
     // Draw icon on the left side of button
-    float iconSize = button.height * 0.8f;  // Icon is 60% of button height
-    float iconX = button.x + 58;  //  padding from left
+    float iconSize = button.height * 0.8f; // Icon is 60% of button height
+    float iconX = button.x + 58;           //  padding from left
     float iconY = button.y + (button.height - iconSize) / 2;
-    
+
     DrawTexturePro(
         icon,
         Rectangle{0, 0, (float)icon.width, (float)icon.height},
         Rectangle{iconX, iconY, iconSize, iconSize},
         Vector2{0, 0},
         0.0f,
-        WHITE
-    );
-    
+        WHITE);
+
     // Draw text next to icon
     Vector2 textSize = MeasureTextEx(customFont, text, fontSize, 2);
-    float textX = iconX + iconSize + 15;  // Icon + spacing
+    float textX = iconX + iconSize + 15; // Icon + spacing
     float textY = button.y + (button.height - fontSize) / 2;
-    
+
     DrawTextEx(
         customFont,
         text,
         Vector2{textX, textY},
         fontSize,
         2,
-        WHITE
-    );
+        WHITE);
 }
 
 void Menu::renderMainMenu()
 {
     // Title
-    const char* title = "JAHIRO'S LEGACY";
-     Vector2 titleSize = MeasureTextEx(customFont, title, 80, 3);
+    const char *title = "JAHIRO'S LEGACY";
+    Vector2 titleSize = MeasureTextEx(customFont, title, 80, 3);
     DrawTextEx(
         customFont,
         title,
         Vector2{windowWidth / 2.f - titleSize.x / 2, 100},
-        80,  // size
-        3,   // spacing
-        GOLD
-    );
-    
+        80, // size
+        3,  // spacing
+        GOLD);
+
     // Draw main buttons
-     drawButtonWithIcon(playButton, "PLAY", playIcon, DARKGREEN, GREEN, 45);
-     drawButtonWithSize(mapSelectButton, "MAP SELECT", DARKBLUE, BLUE, 35);
-     drawIconButton(settingsButton, settingsIcon, DARKGRAY, PURPLE);
-     drawIconButton(quitButton, quitIcon, DARKGRAY, RED);
+    drawButtonWithIcon(playButton, "PLAY", playIcon, DARKGREEN, GREEN, 45);
+    drawIconButton(statsButton, statIcon, DARKGRAY, PURPLE);
+    drawButtonWithSize(mapSelectButton, "MAP SELECT", DARKBLUE, BLUE, 35);
+    drawIconButton(settingsButton, settingsIcon, DARKGRAY, PURPLE);
+    drawIconButton(quitButton, quitIcon, DARKGRAY, RED);
 
     // Instructions
-    const char* instructions = "Use WASD to move, Mouse to aim and shoot";
+    const char *instructions = "Use WASD to move, Mouse to aim and shoot";
     Vector2 instSize = MeasureTextEx(customFont, instructions, 20, 1);
     DrawTextEx(
         customFont,
@@ -233,16 +223,41 @@ void Menu::renderMainMenu()
         Vector2{windowWidth / 2.f - instSize.x / 2, (float)windowHeight - 80.f},
         20,
         1,
-        LIGHTGRAY
-    );
+        LIGHTGRAY);
+}
+
+void Menu::renderStats()
+{
+    const char *title = "STATS";
+    Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
+    DrawTextEx(customFont, title,
+               Vector2{windowWidth / 2.f - titleSize.x / 2, 120},
+               70, 3, GOLD);
+
+    // High Score
+    std::string hsText = "Highest Score: " + std::to_string(highScore);
+    Vector2 hsSize = MeasureTextEx(customFont, hsText.c_str(), 35, 2);
+    DrawTextEx(customFont, hsText.c_str(),
+               Vector2{windowWidth / 2.f - hsSize.x / 2, windowHeight / 2.f - 80},
+               35, 2, GOLD);
+
+    // Current Score
+    std::string csText = "Last Score: " + std::to_string(currentScore);
+    Vector2 csSize = MeasureTextEx(customFont, csText.c_str(), 35, 2);
+    DrawTextEx(customFont, csText.c_str(),
+               Vector2{windowWidth / 2.f - csSize.x / 2, windowHeight / 2.f - 20},
+               35, 2, WHITE);
+
+    // Back button
+    drawButtonWithSize(backFromSettingsButton, "BACK", DARKGRAY, GRAY, 35);
 }
 
 void Menu::renderMapSelection()
 {
     // Title
-    const char* title = "SELECT MAP";
+    const char *title = "SELECT MAP";
     int titleWidth = MeasureText(title, 70);
-  Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
+    Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
     DrawTextEx(
         customFont,
         title,
@@ -250,16 +265,16 @@ void Menu::renderMapSelection()
         70,
         3,
         GOLD);
-    
+
     // Map buttons with selection highlight
     Color map1Color = (selectedMap == 1) ? BLUE : DARKBLUE;
     Color map1Hover = (selectedMap == 1) ? SKYBLUE : BLUE;
     drawButtonWithSize(map1Button, "JAHIRO'S JANDA", map1Color, map1Hover, 38);
-    
+
     Color map2Color = (selectedMap == 2) ? BLUE : DARKBLUE;
     Color map2Hover = (selectedMap == 2) ? SKYBLUE : BLUE;
     drawButtonWithSize(map2Button, "SHONY'S AKHRA", map2Color, map2Hover, 38);
-    
+
     // Display current selection
     std::string selectionText = "Current: ";
     selectionText += (selectedMap == 1) ? "JAHIRO'S JANDA" : "SHONY'S AKHRA";
@@ -270,56 +285,51 @@ void Menu::renderMapSelection()
         Vector2{windowWidth / 2.f - selSize.x / 2, windowHeight / 2.f + 60},
         30,
         2,
-        YELLOW
-    );
-    
+        YELLOW);
+
     // Back button
-  drawButtonWithSize(backFromMapButton, "BACK", DARKGRAY, GRAY, 35);
+    drawButtonWithSize(backFromMapButton, "BACK", DARKGRAY, GRAY, 35);
 }
 
 void Menu::renderSettings()
 {
     // Title
-    const char* title = "SETTINGS";
-     Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
+    const char *title = "SETTINGS";
+    Vector2 titleSize = MeasureTextEx(customFont, title, 70, 3);
     DrawTextEx(
         customFont,
         title,
         Vector2{windowWidth / 2.f - titleSize.x / 2, 120},
         40,
         3,
-        GOLD
-    );
-    
+        GOLD);
+
     // Music Volume
-    const char* musicLabel = "Music";
+    const char *musicLabel = "Music";
     DrawTextEx(
         customFont,
         musicLabel,
         Vector2{windowWidth / 2.f - 280, windowHeight / 2.f - 70},
         30,
         2,
-        WHITE
-    );
+        WHITE);
     drawButtonWithSize(musicDownButton, "-", DARKBLUE, BLUE, 40);
-    
+
     // Volume bar for music
     Rectangle musicBar = {
         windowWidth / 2.f - 80,
         windowHeight / 2.f - 70,
         160,
-        40
-    };
+        40};
     DrawRectangleRec(musicBar, DARKGRAY);
     Rectangle musicFill = {
         musicBar.x,
         musicBar.y,
         musicBar.width * musicVolume,
-        musicBar.height
-    };
+        musicBar.height};
     DrawRectangleRec(musicFill, GREEN);
     DrawRectangleLinesEx(musicBar, 2, WHITE);
-    
+
     // Display percentage
     std::string musicPercent = std::to_string((int)(musicVolume * 100)) + "%";
     DrawTextEx(
@@ -328,40 +338,36 @@ void Menu::renderSettings()
         Vector2{windowWidth / 2.f - 20, windowHeight / 2.f - 60},
         30,
         2,
-        WHITE
-    );
-    
+        WHITE);
+
     drawButtonWithSize(musicUpButton, "+", DARKBLUE, BLUE, 40);
-    
+
     // SFX Volume
-    const char* sfxLabel = "SFX";
+    const char *sfxLabel = "SFX";
     DrawTextEx(
         customFont,
         sfxLabel,
         Vector2{windowWidth / 2.f - 260, windowHeight / 2.f + 40},
         30,
         2,
-        WHITE
-    );
+        WHITE);
     drawButtonWithSize(sfxDownButton, "-", DARKBLUE, BLUE, 40);
-    
+
     // Volume bar for SFX
     Rectangle sfxBar = {
         windowWidth / 2.f - 80,
         windowHeight / 2.f + 30,
         160,
-        40
-    };
+        40};
     DrawRectangleRec(sfxBar, DARKGRAY);
     Rectangle sfxFill = {
         sfxBar.x,
         sfxBar.y,
         sfxBar.width * sfxVolume,
-        sfxBar.height
-    };
+        sfxBar.height};
     DrawRectangleRec(sfxFill, GREEN);
     DrawRectangleLinesEx(sfxBar, 2, WHITE);
-    
+
     // Display percentage
     std::string sfxPercent = std::to_string((int)(sfxVolume * 100)) + "%";
     DrawTextEx(
@@ -370,21 +376,19 @@ void Menu::renderSettings()
         Vector2{windowWidth / 2.f - 20, windowHeight / 2.f + 40},
         30,
         2,
-        WHITE
-    );
-    
-    drawButtonWithSize(sfxUpButton, "+", DARKBLUE, BLUE, 40);
-    
-    DrawText(TextFormat("Highest Score: %d", highScore), windowWidth/2 - 120, windowHeight/2 + 100, 28, GOLD);
-    // Back button
-   drawButtonWithSize(backFromSettingsButton, "BACK", DARKGRAY, GRAY, 35);
+        WHITE);
 
+    drawButtonWithSize(sfxUpButton, "+", DARKBLUE, BLUE, 40);
+
+    // DrawText(TextFormat("Highest Score: %d", highScore), windowWidth / 2 - 120, windowHeight / 2 + 100, 28, GOLD);
+    // Back button
+    drawButtonWithSize(backFromSettingsButton, "BACK", DARKGRAY, GRAY, 35);
 }
 
 void Menu::render(GameState currentState)
 {
     ClearBackground(Color{20, 20, 40, 255});
-    
+
     // Draw background
     DrawTexturePro(
         menuBackground,
@@ -392,9 +396,8 @@ void Menu::render(GameState currentState)
         Rectangle{0, 0, (float)windowWidth, (float)windowHeight},
         Vector2{0, 0},
         0.f,
-        WHITE
-    );
-    
+        WHITE);
+
     // Render appropriate screen based on state
     if (currentState == GameState::MENU)
     {
@@ -408,72 +411,89 @@ void Menu::render(GameState currentState)
     {
         renderSettings();
     }
+    else if (currentState == GameState::STATS)
+    {
+        renderStats();
+    }
 }
 
 GameState Menu::handleInput(GameState currentState)
 {
     if (!IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         return currentState;
-    
+
     // main menu
     if (currentState == GameState::MENU)
     {
         if (isButtonHovered(playButton))
             return GameState::PLAYING;
-        
+
         if (isButtonHovered(mapSelectButton))
             return GameState::MAP_SELECTION;
-        
+
         if (isButtonHovered(settingsButton))
             return GameState::SETTINGS;
-        
+
         if (isButtonHovered(quitButton))
             return GameState::QUIT;
+
+        if (isButtonHovered(statsButton))
+            return GameState::STATS;
     }
-    
+
     // map selection
     else if (currentState == GameState::MAP_SELECTION)
     {
         if (isButtonHovered(map1Button))
             selectedMap = 1;
-        
+
         if (isButtonHovered(map2Button))
             selectedMap = 2;
-        
+
         if (isButtonHovered(backFromMapButton))
             return GameState::MENU;
     }
-    
-    //settings
+
+    // settings
     else if (currentState == GameState::SETTINGS)
     {
         if (isButtonHovered(musicUpButton))
         {
             musicVolume += 0.1f;
-            if (musicVolume > 1.0f) musicVolume = 1.0f;
+            if (musicVolume > 1.0f)
+                musicVolume = 1.0f;
         }
-        
+
         if (isButtonHovered(musicDownButton))
         {
             musicVolume -= 0.1f;
-            if (musicVolume < 0.0f) musicVolume = 0.0f;
+            if (musicVolume < 0.0f)
+                musicVolume = 0.0f;
         }
-        
+
         if (isButtonHovered(sfxUpButton))
         {
             sfxVolume += 0.1f;
-            if (sfxVolume > 1.0f) sfxVolume = 1.0f;
+            if (sfxVolume > 1.0f)
+                sfxVolume = 1.0f;
         }
-        
+
         if (isButtonHovered(sfxDownButton))
         {
             sfxVolume -= 0.1f;
-            if (sfxVolume < 0.0f) sfxVolume = 0.0f;
+            if (sfxVolume < 0.0f)
+                sfxVolume = 0.0f;
         }
-        
+
         if (isButtonHovered(backFromSettingsButton))
             return GameState::MENU;
     }
-    
+
+    else if (currentState == GameState::STATS)
+    {
+        if (isButtonHovered(backFromSettingsButton))
+            return GameState::MENU;
+    }
+
     return currentState;
 }

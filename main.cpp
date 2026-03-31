@@ -224,7 +224,7 @@ int main()
 
         else if (currentState == GameState::MENU ||
                  currentState == GameState::MAP_SELECTION ||
-                 currentState == GameState::SETTINGS)
+                 currentState == GameState::SETTINGS || currentState == GameState::STATS)
         { // menuscreen
             menu.render(currentState);
             GameState newState = menu.handleInput(currentState);
@@ -323,6 +323,7 @@ int main()
                 }
             }
             menu.setHighScore(highScore);
+            menu.setCurrentScore(currentScore);
             if (lvl > preLvl)
             {
                 knight.setHealth(100.f);
