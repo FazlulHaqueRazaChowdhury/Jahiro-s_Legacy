@@ -82,10 +82,6 @@ int main()
     map1.addProp(Prop({2400.f, 850.f}, &tree3, 25, 0, 1.2f));
     map1.addProp(Prop({2430.f, 850.f},&tree1, 30, 0, 3.9f));
 
-    map1.addProp(Prop({1830.f, 550.f},&tree1, 30, 0, 3.9f));
-    map1.addProp(Prop({1820.f, 550.f},&tree1, 30, 0, 2.5f));
-    map1.addProp(Prop({1820.f, 550.f},&tree1, 30, 0, 2.5f));
-    map1.addProp(Prop({1810.f, 550.f},&tree1, 30, 0, 2.9f));
     // MAP 2 PROPS
     map2.addProp(Prop({800.f, 600.f}, &tree2, 16, 0, 1.5f));
     map2.addProp(Prop({2200.f, 850.f}, &tree3, 25, 0, 1.2f));
