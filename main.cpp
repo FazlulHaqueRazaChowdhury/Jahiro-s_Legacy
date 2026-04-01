@@ -41,7 +41,7 @@ int main()
     InitAudioDevice();
 
     // Intro page things
-    Texture2D introPage = LoadTexture("nature_tileset/Game_intro Page.png");
+    Texture2D introPage = LoadTexture("nature_tileset/intro.png");
     float introAlpha = 1.f;
     float introTimer = 0.f;
     float introDuration = 5.f;
@@ -91,16 +91,14 @@ int main()
     map2.addProp(Prop({2340.f, 370.f}, &torch, 4, 1, 1.5));
     Map *currentMap = &map1;
 
-    Texture2D BulletTex = LoadTexture("characters/All_Fire_Bullet_Pixel_16x16 (1).png");
+    Texture2D BulletTex = LoadTexture("characters/bullet.png");
     Character knight{windowWidth, windowHeight, &BulletTex};
     Texture2D gobRun = LoadTexture("characters/Goblin/run.png");
     Texture2D gobAttk = LoadTexture("characters/Goblin/Attack.png");
     Texture2D gobDeath = LoadTexture("characters/Goblin/Death.png");
     Texture2D gobHit = LoadTexture("characters/Goblin/hit.png");
 
-    // Enemy2 goblin({1500.f, 1500.f}, &gobRun, &gobAttk, &gobHit, &gobDeath, 100.f, 1.5f);
-    // goblin.setTarget(&knight);
-    // goblin.setDeathSound(enemyDeath);
+
     knight.setShootSound(&gunShot);
     knight.setShootSound(&gunShot);
     knight.setReloadSound(&reloadSound);
@@ -115,10 +113,6 @@ int main()
     Texture2D mushDeath = LoadTexture("characters/Mushroom/Death.png");
     Texture2D mushHit = LoadTexture("characters/Mushroom/hit.png");
 
-    // Texture2D skelRun = LoadTexture("characters/Skeleton/Walk.png");
-    // Texture2D skelAttk = LoadTexture("characters/Skeleton/Attack.png");
-    // Texture2D skelDeath = LoadTexture("characters/Skeleton/Death.png");
-    // Texture2D skelHit = LoadTexture("characters/Skeleton/hit.png");
 
     std::vector<Enemy2> enemies2;
     const int MAX_ENEMIES = 8;
