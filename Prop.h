@@ -5,7 +5,7 @@
 class Prop
 {
 public:
-    Prop(Vector2 pos, Texture2D tex, float maxF, float r, float sc);
+    Prop(Vector2 pos, Texture2D* tex, float maxF, float r, float sc);
     void Render(Vector2 knightPos, float deltaTime);
     Rectangle getCollisionRec(Vector2 knightPos);
 private:

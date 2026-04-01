@@ -31,7 +31,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    //  SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
@@ -71,18 +71,28 @@ int main()
     Texture2D fallSprite = LoadTexture("nature_tileset/spring.png");
     Texture2D fallSpriteAkra = LoadTexture("nature_tileset/fall.png");
 
+    Texture2D tree1 = LoadTexture("nature_tileset/tree.png");
+    Texture2D tree2 = LoadTexture("nature_tileset/tree2.png");
+    Texture2D tree3 = LoadTexture("nature_tileset/tree3.png");
+    Texture2D torch = LoadTexture("nature_tileset/Torch.png");
+
     // MAP 1 PROPS
-    map1.addProp(Prop({750.f, 500.f}, LoadTexture("nature_tileset/tree.png"), 30, 0, 4.f));
-    map1.addProp(Prop({800.f, 600.f}, LoadTexture("nature_tileset/tree2.png"), 16, 0, 1.5f));
-    map1.addProp(Prop({2200.f, 850.f}, LoadTexture("nature_tileset/tree3.png"), 25, 0, 1.2f));
-    map1.addProp(Prop({2300.f, 800.f}, LoadTexture("nature_tileset/tree.png"), 30, 0, 3.9f));
+    map1.addProp(Prop({750.f, 500.f},&tree1, 30, 0, 4.f));
+    map1.addProp(Prop({800.f, 600.f}, &tree2, 16, 0, 1.5f));
+    map1.addProp(Prop({2400.f, 850.f}, &tree3, 25, 0, 1.2f));
+    map1.addProp(Prop({2430.f, 850.f},&tree1, 30, 0, 3.9f));
+
+    map1.addProp(Prop({1830.f, 550.f},&tree1, 30, 0, 3.9f));
+    map1.addProp(Prop({1820.f, 550.f},&tree1, 30, 0, 2.5f));
+    map1.addProp(Prop({1820.f, 550.f},&tree1, 30, 0, 2.5f));
+    map1.addProp(Prop({1810.f, 550.f},&tree1, 30, 0, 2.9f));
     // MAP 2 PROPS
-    map2.addProp(Prop({800.f, 600.f}, LoadTexture("nature_tileset/tree2.png"), 16, 0, 1.5f));
-    map2.addProp(Prop({2200.f, 850.f}, LoadTexture("nature_tileset/tree3.png"), 25, 0, 1.2f));
-    map2.addProp(Prop({230.f + 446.f, 200.f + 256.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
-    map2.addProp(Prop({1160.f, 730.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
-    map2.addProp(Prop({2020.f, 720.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
-    map2.addProp(Prop({2340.f, 370.f}, LoadTexture("nature_tileset/Torch.png"), 4, 1, 1.5));
+    map2.addProp(Prop({800.f, 600.f}, &tree2, 16, 0, 1.5f));
+    map2.addProp(Prop({2200.f, 850.f}, &tree3, 25, 0, 1.2f));
+    map2.addProp(Prop({230.f + 446.f, 200.f + 256.f}, &torch, 4, 1, 1.5));
+    map2.addProp(Prop({1160.f, 730.f}, &torch, 4, 1, 1.5));
+    map2.addProp(Prop({2020.f, 720.f}, &torch, 4, 1, 1.5));
+    map2.addProp(Prop({2340.f, 370.f}, &torch, 4, 1, 1.5));
     Map *currentMap = &map1;
 
     Texture2D BulletTex = LoadTexture("characters/All_Fire_Bullet_Pixel_16x16 (1).png");
@@ -181,6 +191,10 @@ int main()
 
     while (!WindowShouldClose() && currentState != GameState::QUIT)
     {
+        if (IsKeyPressed(KEY_F))
+        {
+            ToggleFullscreen();
+        }
         UpdateMusicStream(bgMusic);
 
         SetMusicVolume(bgMusic, menu.getMusicVolume() * 0.2f);
@@ -287,7 +301,7 @@ int main()
                 if (enemy.getAlive())
                 {
                     Vector2 push = enemy.getPushVector(enemies2);
-                    float pushForce = 6.0f; 
+                    float pushForce = 6.0f;
                     push = Vector2Scale(push, pushForce);
                     enemy.setWorldPos(Vector2Add(enemy.getWorldPos(), push));
                 }
@@ -385,10 +399,12 @@ int main()
         else if (!knight.getAlive() && currentState == GameState::PLAYING)
         {
             currentState = GameState::GAME_OVER;
-            if(highScore > currentScore){
+            if (highScore > currentScore)
+            {
                 PlaySound(gameOverSound);
             }
-            else {
+            else
+            {
                 PlaySound(gameOverSoundWin);
             }
         }
@@ -410,8 +426,8 @@ int main()
             DrawRectangleLinesEx(Rectangle{(float)modalX, (float)modalY, (float)modalW, (float)modalH}, 3, RED);
 
             // Title
-            if(highScore > currentScore)
-            DrawText("DO NOT PLAY WITH JAHIRO'S IJJOT!", modalX+10, modalY + 30, 28, RED);
+            if (highScore > currentScore)
+                DrawText("DO NOT PLAY WITH JAHIRO'S IJJOT!", modalX + 10, modalY + 30, 28, RED);
             else
             {
 

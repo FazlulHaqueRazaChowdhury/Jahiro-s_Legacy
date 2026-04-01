@@ -1,9 +1,9 @@
 #include "Prop.h"
 #include "raymath.h"
 
-Prop::Prop(Vector2 pos, Texture2D tex, float maxF,float r, float sc):
+Prop::Prop(Vector2 pos, Texture2D* tex, float maxF,float r, float sc):
     worldPos(pos),
-    texture(tex),
+    texture(*tex),
     maxFrames(maxF),
     rowMax(r),
     scale(sc)

@@ -208,7 +208,7 @@ void Character::tick(float deltaTime)
     }
     
     // Shooting Logic
-    if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyDown(KEY_B)) && !isReloading)
+    if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) && !isReloading)
     {
         if (currentAmmo > 0) 
         {
