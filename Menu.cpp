@@ -286,7 +286,7 @@ void Menu::renderMapSelection()
         YELLOW);
 
     // Back button
-    drawButtonWithSize(backFromMapButton, "BACK", DARKGRAY, GRAY, 35);
+    drawButtonWithSize(backFromMapButton, "SELECT", DARKGRAY, GRAY, 35);
 }
 
 void Menu::renderSettings()

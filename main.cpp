@@ -31,7 +31,7 @@ static Vector2 GetRandomLeafPos()
 }
 int main()
 {
-    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    SetConfigFlags(FLAG_FULLSCREEN_MODE);
     const int windowWidth{1280};
     const int windowHeight{720};
     InitWindow(windowWidth, windowHeight, "Jahiro's Legacy");
